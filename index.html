@@ -65,9 +65,28 @@
 
         <label for="station">選擇車站:</label>
         <select id="station">
-            <option value="Station1">A1</option>
-            <option value="Station2">A2</option>
-            <option value="Station3">A3</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="A3">A3</option>
+            <option value="A4">A4</option>
+            <option value="A5">A5</option>
+            <option value="A6">A6</option>
+            <option value="A7">A7</option>
+            <option value="A8">A8</option>
+            <option value="A9">A9</option>
+            <option value="A10">A10</option>
+            <option value="A11">A11</option>
+            <option value="A12">A12</option>
+            <option value="A13">A13</option>
+            <option value="A14a">A14a</option>
+            <option value="A15">A15</option>
+            <option value="A16">A16</option>
+            <option value="A17">A17</option>
+            <option value="A18">A18</option>
+            <option value="A19">A19</option>
+            <option value="A20">A20</option>
+            <option value="A21">A21</option>
+            <option value="A22">A22</option>
         </select>
 
         <label for="startTime">選擇開始時間:</label>
@@ -133,7 +152,7 @@
                         return; // 不發送訊息
                     }
 
-                    const message = `查詢條件：\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`; 
+                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`; 
                     sendMessageToLineBot(message); // 發送消息
                 });
             })
