@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-datetimepicker@2.5.4/jquery.datetimepicker.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-datetimepicker@2.5.4/jquery.datetimepicker.min.css">
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -102,20 +100,21 @@
                         console.error('獲取使用者資料時發生錯誤:', err);
                     });
 
-                // 初始化 datetimepicker
-                $("#startTime, #endTime").datetimepicker({
-                    format: 'Y/m/d H:i:s', // 使用 yyyy/mm/dd hh:mm:ss 格式
-                    step: 15, // 每 15 分鐘一個時間間隔
-                    minDate: 0, // 不允許選擇過去的日期
-                    defaultTime: '00:00', // 預設時間為 00:00
-                    maxDate: 0, // 限制結束時間不超過今天
-                    closeOnDateSelect: true,
-                    closeOnTimeSelect: true
+                // 初始化 Flatpickr 日期選擇器
+                flatpickr("#startTime", {
+                    enableTime: true,  // 啟用時間選擇
+                    dateFormat: "Y/m/d H:i",  // 顯示格式
+                    minDate: "today",  // 不允許選擇過去日期
+                    minuteIncrement: 15,  // 每次增量為15分鐘
+                    defaultHour: 0,  // 默認時間為 00:00
                 });
 
-                // 確認 datetimepicker 是否正確初始化
-                $('#startTime, #endTime').on('focus', function() {
-                    console.log('Datetimepicker activated');
+                flatpickr("#endTime", {
+                    enableTime: true,
+                    dateFormat: "Y/m/d H:i",
+                    minDate: "today",  // 不允許選擇過去日期
+                    minuteIncrement: 15,
+                    defaultHour: 0,
                 });
 
                 // 送出按鈕點擊事件
