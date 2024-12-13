@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery-datetimepicker@2.5.4/jquery.datetimepicker.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-datetimepicker@2.5.4/jquery.datetimepicker.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -97,6 +97,10 @@
                     format: 'Y/m/d H:i:s', // 使用 yyyy/mm/dd hh:mm:ss 格式
                     step: 15, // 每 15 分鐘一個時間間隔
                     minDate: 0, // 不允許選擇過去的日期
+                    defaultTime: '00:00', // 預設時間為 00:00
+                    maxDate: 0, // 限制結束時間不超過今天
+                    closeOnDateSelect: true,
+                    closeOnTimeSelect: true
                 });
 
                 document.getElementById('submit').addEventListener('click', () => {
