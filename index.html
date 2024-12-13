@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-timepicker@1.13.0/jquery.timepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-timepicker@1.13.0/jquery.timepicker.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -92,10 +94,20 @@
 
                 // 初始化日期選擇器
                 $("#startTime, #endTime").datepicker({
-                    dateFormat: 'yy-mm-dd',
-                    onSelect: function(dateText) {
-                        // 可以根據需要選擇是否顯示時間選擇器
-                    }
+                    dateFormat: 'yy/mm/dd', // 使用 yyyy/mm/dd 格式
+                });
+
+                // 初始化時間選擇器
+                $('#startTime, #endTime').timepicker({
+                    timeFormat: 'HH:mm:ss', // 設置時間格式為 hh:mm:ss
+                    interval: 15, // 每 15 分鐘一個時間間隔
+                    minTime: '00:00:00', // 最小時間
+                    maxTime: '23:59:59', // 最大時間
+                    defaultTime: '12:00:00', // 默認時間
+                    startTime: '00:00:00', // 開始時間
+                    dynamic: false,
+                    dropdown: true,
+                    scrollbar: true
                 });
 
                 document.getElementById('submit').addEventListener('click', () => {
