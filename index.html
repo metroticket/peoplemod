@@ -61,6 +61,10 @@
     <h1>人流查詢系統</h1>
 
     <div class="form-group">
+        <!-- 顯示使用者ID -->
+        <label for="userId">使用者ID:</label>
+        <div id="userId" style="font-weight: bold;"></div> <!-- 用來顯示 USER ID -->
+
         <label for="station">選擇車站:</label>
         <select id="station">
             <option value="Station1">A1</option>
@@ -85,9 +89,14 @@
             .then(() => {
                 console.log('LIFF init');
 
+                // 獲取用戶資料並顯示 USERID
                 liff.getProfile()
                     .then(profile => {
                         const userId = profile.userId; // 獲取 userId
+                        console.log('USERID:', userId);
+
+                        // 顯示USERID到頁面上
+                        document.getElementById('userId').innerText = userId;
                     })
                     .catch(err => {
                         console.error('獲取使用者資料時發生錯誤:', err);
