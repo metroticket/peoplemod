@@ -73,10 +73,10 @@
         </select>
 
         <label for="startTime">選擇開始時間:</label>
-        <input type="text" id="startTime" placeholder="請選擇開始時間">
+        <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
 
         <label for="endTime">選擇結束時間:</label>
-        <input type="text" id="endTime" placeholder="請選擇結束時間">
+        <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
 
         <button id="submit">送出</button>
         <div class="error-message" id="error-message"></div>
@@ -103,13 +103,12 @@
                     });
 
                 // 初始化 datetimepicker
-                console.log('Initializing datetimepicker...');
                 $("#startTime, #endTime").datetimepicker({
                     format: 'Y/m/d H:i:s', // 使用 yyyy/mm/dd hh:mm:ss 格式
                     step: 15, // 每 15 分鐘一個時間間隔
                     minDate: 0, // 不允許選擇過去的日期
-                    maxDate: 0, // 限制結束時間不超過今天
                     defaultTime: '00:00', // 預設時間為 00:00
+                    maxDate: 0, // 限制結束時間不超過今天
                     closeOnDateSelect: true,
                     closeOnTimeSelect: true
                 });
