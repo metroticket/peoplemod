@@ -61,10 +61,7 @@
     <h1>人流查詢系統</h1>
 
     <div class="form-group">
-        <!-- 顯示使用者ID -->
-        <label for="userId">使用者ID:</label>
-        <div id="userId" style="font-weight: bold;"></div> <!-- 用來顯示 USER ID -->
-
+        <!-- 顯示使用者ID已隱藏 -->
         <label for="station">選擇車站:</label>
         <select id="station">
             <option value="A1">A1</option>
@@ -121,14 +118,13 @@
                 .then(() => {
                     console.log('LIFF init');
 
-                    // 獲取用戶資料並顯示 USERID
+                    // 獲取用戶資料並顯示 USERID，但此處不再顯示
                     liff.getProfile()
                         .then(profile => {
                             const userId = profile.userId; // 獲取 userId
-                            console.log('USERID:', userId);
+                            console.log('USERID:', userId);  // 可在控制台查看
 
-                            // 顯示USERID到頁面上
-                            document.getElementById('userId').innerText = userId;
+                            // 你仍然可以在程式中使用 userId 進行其他操作，但不再顯示在頁面
                         })
                         .catch(err => {
                             console.error('獲取使用者資料時發生錯誤:', err);
@@ -240,9 +236,7 @@
                             console.error('發送訊息時發生錯誤:', err);
                         });
                     }
-                })
-                .catch((error) => {
-                    console.error("LIFF 初始化錯誤:", error);
+
                 });
         });
     </script>
