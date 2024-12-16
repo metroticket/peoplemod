@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <!-- Flatpickr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
@@ -36,37 +38,20 @@
         button {
             width: 100%;
             padding: 12px;
-            background-color: #e0c3f8;
-            color: black;
+            background-color: #e0c3f8; /* 淡紫色 */
+            color: black; /* 黑色字體 */
             border: none;
             border-radius: 5px;
             font-size: 18px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #d1a3f0;
+            background-color: #d1a3f0; /* 按鈕懸停顏色 */
         }
         .error-message {
             color: red;
             margin-top: 10px;
-            display: none;
-        }
-
-        /* 日期與時間顯示在同一行 */
-        .date-time-picker {
-            display: flex;
-            align-items: center;
-        }
-
-        .date-time-picker input {
-            flex: 1;  /* 使日期和時間佔滿同一行 */
-        }
-
-        /* 較小螢幕時的樣式 */
-        @media (max-width: 600px) {
-            .date-time-picker {
-                flex-direction: column;  /* 小螢幕顯示為上下排列 */
-            }
+            display: none; /* 初始隱藏 */
         }
     </style>
 </head>
@@ -74,8 +59,9 @@
     <h1>人流查詢系統</h1>
 
     <div class="form-group">
+        <!-- 顯示使用者ID -->
         <label for="userId">使用者ID:</label>
-        <div id="userId" style="font-weight: bold;">User ID Here</div>
+        <div id="userId" style="font-weight: bold;"></div> <!-- 用來顯示 USER ID -->
 
         <label for="station">選擇車站:</label>
         <select id="station">
@@ -104,68 +90,87 @@
         </select>
 
         <label for="startTime">選擇開始時間:</label>
-        <div class="date-time-picker">
-            <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
-        </div>
+        <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
 
         <label for="endTime">選擇結束時間:</label>
-        <div class="date-time-picker">
-            <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
-        </div>
+        <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
 
         <button id="submit">送出</button>
         <div class="error-message" id="error-message"></div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化 Flatpickr 時間選擇器
-            flatpickr("#startTime", {
-                enableTime: true,
-                dateFormat: "Y/m/d H:i", // 設置格式為 年/月/日 時:分
-                minDate: "today", // 最小日期為今天
-                minuteIncrement: 15, // 以 15 分鐘為間隔
-                defaultHour: 0,
-                defaultMinute: 0, // 預設選擇 00:00
-                allowInput: true, // 允許手動輸入時間
-                disableMobile: false, // 允許手機上顯示
-                time_24hr: true, // 使用 24 小時制
-                enable: [
-                    { from: "today", to: new Date() }
-                ] // 只允許選擇今天或以後的時間
+        var liffID = '2006470777-N3VdwgyO'; // 替換為你的 LIFF ID
+
+        liff.init({ liffId: liffID })
+            .then(() => {
+                console.log('LIFF init');
+
+                // 獲取用戶資料並顯示 USERID
+                liff.getProfile()
+                    .then(profile => {
+                        const userId = profile.userId; // 獲取 userId
+                        console.log('USERID:', userId);
+
+                        // 顯示USERID到頁面上
+                        document.getElementById('userId').innerText = userId;
+                    })
+                    .catch(err => {
+                        console.error('獲取使用者資料時發生錯誤:', err);
+                    });
+
+                // 初始化 Flatpickr 日期選擇器
+                flatpickr("#startTime", {
+                    enableTime: true,  // 啟用時間選擇
+                    dateFormat: "Y/m/d H:i",  // 顯示格式
+                    minDate: "today",  // 不允許選擇過去日期
+                    minuteIncrement: 15,  // 每次增量為15分鐘
+                    defaultHour: 0,  // 默認時間為 00:00
+                });
+
+                flatpickr("#endTime", {
+                    enableTime: true,
+                    dateFormat: "Y/m/d H:i",
+                    minDate: "today",  // 不允許選擇過去日期
+                    minuteIncrement: 15,
+                    defaultHour: 0,
+                });
+
+                // 送出按鈕點擊事件
+                document.getElementById('submit').addEventListener('click', () => {
+                    const station = document.getElementById('station').value; // 車站
+                    const startTime = document.getElementById('startTime').value; // 開始時間
+                    const endTime = document.getElementById('endTime').value; // 結束時間
+
+                    const errorMessageDiv = document.getElementById('error-message');
+                    errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
+
+                    // 檢查車站和時間是否為空
+                    if (!station || !startTime || !endTime) {
+                        errorMessageDiv.innerText = '車站和時間不能為空';
+                        errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+                        return; // 不發送訊息
+                    }
+
+                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`; 
+                    sendMessageToLineBot(message); // 發送消息
+                });
+            })
+            .catch(err => {
+                console.error('LIFF 初始化時發生錯誤:', err);
             });
 
-            flatpickr("#endTime", {
-                enableTime: true,
-                dateFormat: "Y/m/d H:i", // 設置格式為 年/月/日 時:分
-                minDate: "today", // 最小日期為今天
-                minuteIncrement: 15, // 以 15 分鐘為間隔
-                defaultHour: 0,
-                defaultMinute: 0, // 預設選擇 00:00
-                allowInput: true, // 允許手動輸入時間
-                disableMobile: false, // 允許手機上顯示
-                time_24hr: true, // 使用 24 小時制
+        function sendMessageToLineBot(message) {
+            liff.sendMessages([{
+                type: 'text',
+                text: message
+            }]).then(() => {
+                console.log('訊息發送成功');
+                liff.closeWindow(); // 關閉 LIFF
+            }).catch((err) => {
+                console.error('發送訊息時發生錯誤:', err);
             });
-
-            // 送出按鈕的點擊事件
-            document.getElementById('submit').addEventListener('click', function() {
-                const station = document.getElementById('station').value;
-                const startTime = document.getElementById('startTime').value;
-                const endTime = document.getElementById('endTime').value;
-
-                const errorMessageDiv = document.getElementById('error-message');
-                errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
-
-                if (!station || !startTime || !endTime) {
-                    errorMessageDiv.innerText = '車站和時間不能為空';
-                    errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                    return;
-                }
-
-                // 顯示選擇結果
-                console.log(`功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`);
-            });
-        });
+        }
     </script>
 </body>
 </html>
