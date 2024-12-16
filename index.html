@@ -145,6 +145,12 @@
                     scrollbar: true
                 });
 
+                // 確保時間選擇器在頁面加載時正常顯示
+                $(document).ready(function() {
+                    $('#startTime').timepicker();
+                    $('#endTime').timepicker();
+                });
+
                 // 送出按鈕點擊事件
                 document.getElementById('submit').addEventListener('click', () => {
                     const station = document.getElementById('station').value; // 車站
