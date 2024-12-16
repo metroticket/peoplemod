@@ -133,6 +133,8 @@
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,  // 默認時間為 00:00
                     defaultMinute: 0,  // 默認分鐘為 00
+                    enableSeconds: false,  // 禁用秒選擇
+                    clickOpens: true,  // 點擊打開日曆
                 });
 
                 flatpickr("#endTime", {
@@ -142,6 +144,8 @@
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,
                     defaultMinute: 0,
+                    enableSeconds: false,  // 禁用秒選擇
+                    clickOpens: true,  // 點擊打開日曆
                 });
 
                 // 監聽開始時間變化，動態更新結束時間
