@@ -75,7 +75,6 @@
 
         <label for="station">選擇車站:</label>
         <select id="station">
-            <!-- 車站選項 -->
             <option value="A1">A1</option>
             <option value="A2">A2</option>
             <!-- 更多車站選項... -->
@@ -107,18 +106,46 @@
                     enableTime: true,
                     dateFormat: "Y/m/d H:i",
                     minDate: "today",
-                    minuteIncrement: 15,
+                    minuteIncrement: 15,  // 增量設為15分鐘
                     defaultHour: 0,
-                    disableMobile: false
+                    disableMobile: false,
+                    time_24hr: true,  // 24小時制
+                    noCalendar: true,  // 只顯示時間選擇
+                    onReady: function() {
+                        const timeInputs = document.querySelectorAll('.flatpickr-time');
+                        timeInputs.forEach(input => {
+                            input.querySelectorAll('option').forEach(option => {
+                                const minutes = parseInt(option.value.split(':')[1], 10);
+                                // 只保留 00, 15, 30, 45 分鐘
+                                if (![0, 15, 30, 45].includes(minutes)) {
+                                    option.remove();
+                                }
+                            });
+                        });
+                    }
                 });
 
                 flatpickr("#endTime", {
                     enableTime: true,
                     dateFormat: "Y/m/d H:i",
                     minDate: "today",
-                    minuteIncrement: 15,
+                    minuteIncrement: 15,  // 增量設為15分鐘
                     defaultHour: 0,
-                    disableMobile: false
+                    disableMobile: false,
+                    time_24hr: true,  // 24小時制
+                    noCalendar: true,  // 只顯示時間選擇
+                    onReady: function() {
+                        const timeInputs = document.querySelectorAll('.flatpickr-time');
+                        timeInputs.forEach(input => {
+                            input.querySelectorAll('option').forEach(option => {
+                                const minutes = parseInt(option.value.split(':')[1], 10);
+                                // 只保留 00, 15, 30, 45 分鐘
+                                if (![0, 15, 30, 45].includes(minutes)) {
+                                    option.remove();
+                                }
+                            });
+                        });
+                    }
                 });
 
                 document.getElementById('submit').addEventListener('click', () => {
