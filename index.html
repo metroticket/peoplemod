@@ -130,7 +130,11 @@
                     defaultTime: '00:00', // 默認時間
                     dynamic: true,
                     dropdown: true,
-                    scrollbar: true
+                    scrollbar: true,
+                    change: function(time) {
+                        // 時間改變後可以執行某些操作（例如更新結束時間選擇器的可選範圍）
+                        console.log('選擇的開始時間:', time);
+                    }
                 });
 
                 // 初始化 jQuery Timepicker (結束時間)
@@ -142,7 +146,11 @@
                     defaultTime: '00:00',
                     dynamic: true,
                     dropdown: true,
-                    scrollbar: true
+                    scrollbar: true,
+                    change: function(time) {
+                        // 時間改變後可以執行某些操作
+                        console.log('選擇的結束時間:', time);
+                    }
                 });
 
                 // 確保時間選擇器在頁面加載時正常顯示
