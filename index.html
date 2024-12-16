@@ -128,30 +128,30 @@
                 minStartDate.setDate(today.getDate() - 7);
                 const minStartDateString = minStartDate.toISOString().split('T')[0]; // 格式化為 yyyy-mm-dd
 
-                // 初始化 Flatpickr 日期選擇器，設置滾動模式
+                // 初始化 Flatpickr 日期選擇器，設置日曆樣式
                 flatpickr("#startTime", {
                     enableTime: true,  // 啟用時間選擇
-                    dateFormat: "Y/m/d H:i",  // 顯示格式
+                    dateFormat: "Y/m/d",  // 顯示格式為日期
                     minDate: minStartDateString,  // 最早開始時間為7天前
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,  // 默認時間為 00:00
                     time_24hr: true,  // 使用24小時制
                     locale: 'zh',  // 使用中文
-                    mode: 'single', // 滾動選擇器
                     allowInput: true, // 允許手動輸入
+                    disableMobile: false, // 讓行動裝置也顯示日曆
                 });
 
                 // 初始化結束時間選擇器，開始時間變更時會動態更新最小可選日期
                 const endTimePicker = flatpickr("#endTime", {
                     enableTime: true,
-                    dateFormat: "Y/m/d H:i",
+                    dateFormat: "Y/m/d",  // 只顯示日期
                     minDate: minStartDateString,  // 默認最早結束時間為7天前
                     minuteIncrement: 15,
                     defaultHour: 0,
                     time_24hr: true,  // 使用24小時制
                     locale: 'zh',  // 使用中文
-                    mode: 'single', // 滾動選擇器
                     allowInput: true, // 允許手動輸入
+                    disableMobile: false, // 讓行動裝置也顯示日曆
                     onChange: function(selectedDates, dateStr, instance) {
                         const startTimeValue = document.getElementById('startTime').value;
                         if (startTimeValue && new Date(dateStr) < new Date(startTimeValue)) {
