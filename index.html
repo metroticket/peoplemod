@@ -151,7 +151,7 @@
                 // 初始化 Flatpickr 日期選擇器（結束日期）
                 flatpickr("#endDate", {
                     dateFormat: "Y/m/d",  // 只選擇日期
-                    minDate: todayString,  // 最早結束日期為今天
+                    minDate: minStartDateString,  // 最早結束日期為7天前
                     maxDate: todayString,  // 最大日期為今天
                 });
 
@@ -168,13 +168,13 @@
                 document.getElementById('startDate').addEventListener('change', function() {
                     const startDateValue = this.value;
                     if (startDateValue) {
-                        const nextDate = new Date(startDateValue); // 根據開始日期設定結束日期的範圍
-                        const nextDateString = nextDate.toISOString().split('T')[0];
+                        const startDate = new Date(startDateValue); // 根據開始日期設定結束日期的範圍
+                        const startDateString = startDate.toISOString().split('T')[0];
                         const todayString = today.toISOString().split('T')[0];
 
-                        // 更新結束日期的最小日期和最大日期為開始日期及今天
-                        document.getElementById('endDate')._flatpickr.set('minDate', startDateValue);
-                        document.getElementById('endDate')._flatpickr.set('maxDate', todayString);
+                        // 更新結束日期的最小日期為開始日期
+                        document.getElementById('endDate')._flatpickr.set('minDate', startDateString);
+                        document.getElementById('endDate')._flatpickr.set('maxDate', todayString); // 最大日期為今天
                     }
                 });
 
