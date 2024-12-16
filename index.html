@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
-    <script src="https://cdn.jsdelivr.net/npm/liff@2.0.0/edge/2/sdk.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/no-ui-slider@15.7.0/dist/nouislider.min.css">
     <script src="https://cdn.jsdelivr.net/npm/no-ui-slider@15.7.0/dist/nouislider.min.js"></script>
     <style>
@@ -104,122 +104,126 @@
     </div>
 
     <script>
-        var liffID = '2006470777-N3VdwgyO'; 
+        // LIFF 初始化
+        var liffID = '2006470777-N3VdwgyO';
 
-        liff.init({ liffId: liffID })
-            .then(() => {
-                liff.getProfile()
-                    .then(profile => {
-                        const userId = profile.userId;
-                        document.getElementById('userId').innerText = userId;
-                    })
-                    .catch(err => console.error('獲取使用者資料時發生錯誤:', err));
+        function initLiff() {
+            liff.init({ liffId: liffID })
+                .then(() => {
+                    liff.getProfile()
+                        .then(profile => {
+                            const userId = profile.userId;
+                            document.getElementById('userId').innerText = userId;
+                        })
+                        .catch(err => console.error('獲取使用者資料時發生錯誤:', err));
 
-                // 設定今天的日期
-                const today = new Date();
-                const todayString = today.toISOString().split('T')[0]; // yyyy-mm-dd
+                    // 設定今天的日期
+                    const today = new Date();
+                    const todayString = today.toISOString().split('T')[0]; // yyyy-mm-dd
 
-                // 設定 7 天前的日期
-                const past7Days = new Date(today);
-                past7Days.setDate(today.getDate() - 7);
-                const past7DaysString = past7Days.toISOString().split('T')[0]; // yyyy-mm-dd
+                    // 設定 7 天前的日期
+                    const past7Days = new Date(today);
+                    past7Days.setDate(today.getDate() - 7);
+                    const past7DaysString = past7Days.toISOString().split('T')[0]; // yyyy-mm-dd
 
-                // 初始化 noUiSlider 時間選擇器
-                var startTimeSlider = document.getElementById('startTimeSlider');
-                var endTimeSlider = document.getElementById('endTimeSlider');
+                    // 初始化 noUiSlider 時間選擇器
+                    var startTimeSlider = document.getElementById('startTimeSlider');
+                    var endTimeSlider = document.getElementById('endTimeSlider');
 
-                noUiSlider.create(startTimeSlider, {
-                    start: [0],
-                    connect: [true, false],
-                    step: 15, // 15 分鐘為步長
-                    range: {
-                        'min': [0],  // 00:00
-                        'max': [1440]  // 24:00
-                    },
-                    format: {
-                        to: function (value) {
-                            var hours = Math.floor(value / 60);
-                            var minutes = value % 60;
-                            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                        },
-                        from: function (value) {
-                            var parts = value.split(':');
-                            return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                        }
-                    }
-                });
-
-                noUiSlider.create(endTimeSlider, {
-                    start: [0],
-                    connect: [true, false],
-                    step: 15, // 15 分鐘為步長
-                    range: {
-                        'min': [0],  // 00:00
-                        'max': [1440]  // 24:00
-                    },
-                    format: {
-                        to: function (value) {
-                            var hours = Math.floor(value / 60);
-                            var minutes = value % 60;
-                            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                        },
-                        from: function (value) {
-                            var parts = value.split(':');
-                            return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                        }
-                    }
-                });
-
-                // 更新開始時間並設置範圍
-                startTimeSlider.noUiSlider.on('update', function(values, handle) {
-                    document.getElementById('startTime').value = values[handle];
-                    const startTime = values[handle];
-                    const endTime = endTimeSlider.noUiSlider.get();
-                    
-                    // 設置結束時間範圍
-                    endTimeSlider.noUiSlider.updateOptions({
+                    noUiSlider.create(startTimeSlider, {
+                        start: [0],
+                        connect: [true, false],
+                        step: 15, // 15 分鐘為步長
                         range: {
-                            'min': startTime,
-                            'max': 1440
+                            'min': [0],  // 00:00
+                            'max': [1440]  // 24:00
+                        },
+                        format: {
+                            to: function (value) {
+                                var hours = Math.floor(value / 60);
+                                var minutes = value % 60;
+                                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                            },
+                            from: function (value) {
+                                var parts = value.split(':');
+                                return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                            }
                         }
                     });
 
-                    // 如果結束時間小於開始時間，調整結束時間
-                    if (endTime < startTime) {
-                        endTimeSlider.noUiSlider.set(startTime);
-                    }
-                });
+                    noUiSlider.create(endTimeSlider, {
+                        start: [0],
+                        connect: [true, false],
+                        step: 15, // 15 分鐘為步長
+                        range: {
+                            'min': [0],  // 00:00
+                            'max': [1440]  // 24:00
+                        },
+                        format: {
+                            to: function (value) {
+                                var hours = Math.floor(value / 60);
+                                var minutes = value % 60;
+                                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                            },
+                            from: function (value) {
+                                var parts = value.split(':');
+                                return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                            }
+                        }
+                    });
 
-                // 更新結束時間
-                endTimeSlider.noUiSlider.on('update', function(values, handle) {
-                    document.getElementById('endTime').value = values[handle];
-                });
+                    // 更新開始時間並設置範圍
+                    startTimeSlider.noUiSlider.on('update', function(values, handle) {
+                        document.getElementById('startTime').value = values[handle];
+                        const startTime = values[handle];
+                        const endTime = endTimeSlider.noUiSlider.get();
+                        
+                        // 設置結束時間範圍
+                        endTimeSlider.noUiSlider.updateOptions({
+                            range: {
+                                'min': startTime,
+                                'max': 1440
+                            }
+                        });
 
-                // 設置開始時間範圍為今天之前的最多7天
-                const startDate = document.getElementById('startTime');
-                startDate.setAttribute("min", past7DaysString); // 開始時間最早可選為過去7天
-                startDate.setAttribute("max", todayString); // 開始時間最晚可選為今天
+                        // 如果結束時間小於開始時間，調整結束時間
+                        if (endTime < startTime) {
+                            endTimeSlider.noUiSlider.set(startTime);
+                        }
+                    });
 
-                document.getElementById('submit').addEventListener('click', () => {
-                    const station = document.getElementById('station').value;
-                    const startTime = document.getElementById('startTime').value;
-                    const endTime = document.getElementById('endTime').value;
+                    // 更新結束時間
+                    endTimeSlider.noUiSlider.on('update', function(values, handle) {
+                        document.getElementById('endTime').value = values[handle];
+                    });
 
-                    const errorMessageDiv = document.getElementById('error-message');
-                    errorMessageDiv.style.display = 'none';
+                    // 設置開始時間範圍為今天之前的最多7天
+                    const startDate = document.getElementById('startTime');
+                    startDate.setAttribute("min", past7DaysString); // 開始時間最早可選為過去7天
+                    startDate.setAttribute("max", todayString); // 開始時間最晚可選為今天
 
-                    if (!station || !startTime || !endTime) {
-                        errorMessageDiv.innerText = '車站和時間不能為空';
-                        errorMessageDiv.style.display = 'block';
-                        return;
-                    }
+                    document.getElementById('submit').addEventListener('click', () => {
+                        const station = document.getElementById('station').value;
+                        const startTime = document.getElementById('startTime').value;
+                        const endTime = document.getElementById('endTime').value;
 
-                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`;
-                    sendMessageToLineBot(message);
-                });
-            })
-            .catch(err => console.error('LIFF 初始化時發生錯誤:', err));
+                        const errorMessageDiv = document.getElementById('error-message');
+                        errorMessageDiv.style.display = 'none';
 
+                        if (!station || !startTime || !endTime) {
+                            errorMessageDiv.innerText = '車站和時間不能為空';
+                            errorMessageDiv.style.display = 'block';
+                            return;
+                        }
+
+                        const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`;
+                        sendMessageToLineBot(message);
+                    });
+                })
+                .catch(err => console.error('LIFF 初始化時發生錯誤:', err));
+        }
+
+        initLiff(); // 呼叫初始化函數
         function sendMessageToLineBot(message) {
             liff.sendMessages([{
                 type: 'text',
