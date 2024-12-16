@@ -104,13 +104,11 @@
 
                 flatpickr("#startTime", {
                     enableTime: true,
-                    dateFormat: "Y/m/d H:i",
-                    minDate: "today",
-                    minuteIncrement: 15,  // 增量設為15分鐘
-                    defaultHour: 0,
-                    disableMobile: false,
+                    dateFormat: "Y/m/d H:i", // 顯示完整的日期和時間
+                    minDate: "today", // 不允許選擇過去日期
+                    minuteIncrement: 15,  // 每次增量15分鐘
+                    defaultHour: 0, // 默認時間為 00:00
                     time_24hr: true,  // 24小時制
-                    noCalendar: true,  // 只顯示時間選擇
                     onReady: function() {
                         const timeInputs = document.querySelectorAll('.flatpickr-time');
                         timeInputs.forEach(input => {
@@ -127,13 +125,11 @@
 
                 flatpickr("#endTime", {
                     enableTime: true,
-                    dateFormat: "Y/m/d H:i",
-                    minDate: "today",
-                    minuteIncrement: 15,  // 增量設為15分鐘
-                    defaultHour: 0,
-                    disableMobile: false,
+                    dateFormat: "Y/m/d H:i", // 顯示完整的日期和時間
+                    minDate: "today", // 不允許選擇過去日期
+                    minuteIncrement: 15,  // 每次增量15分鐘
+                    defaultHour: 0, // 默認時間為 00:00
                     time_24hr: true,  // 24小時制
-                    noCalendar: true,  // 只顯示時間選擇
                     onReady: function() {
                         const timeInputs = document.querySelectorAll('.flatpickr-time');
                         timeInputs.forEach(input => {
