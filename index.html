@@ -115,6 +115,15 @@
                     })
                     .catch(err => console.error('獲取使用者資料時發生錯誤:', err));
 
+                // 設定今天的日期
+                const today = new Date();
+                const todayString = today.toISOString().split('T')[0]; // yyyy-mm-dd
+
+                // 設定 7 天前的日期
+                const past7Days = new Date(today);
+                past7Days.setDate(today.getDate() - 7);
+                const past7DaysString = past7Days.toISOString().split('T')[0]; // yyyy-mm-dd
+
                 // 初始化 noUiSlider 時間選擇器
                 var startTimeSlider = document.getElementById('startTimeSlider');
                 var endTimeSlider = document.getElementById('endTimeSlider');
@@ -161,14 +170,35 @@
                     }
                 });
 
-                // 更新輸入框顯示的時間
+                // 更新開始時間並設置範圍
                 startTimeSlider.noUiSlider.on('update', function(values, handle) {
                     document.getElementById('startTime').value = values[handle];
+                    const startTime = values[handle];
+                    const endTime = endTimeSlider.noUiSlider.get();
+                    
+                    // 設置結束時間範圍
+                    endTimeSlider.noUiSlider.updateOptions({
+                        range: {
+                            'min': startTime,
+                            'max': 1440
+                        }
+                    });
+
+                    // 如果結束時間小於開始時間，調整結束時間
+                    if (endTime < startTime) {
+                        endTimeSlider.noUiSlider.set(startTime);
+                    }
                 });
 
+                // 更新結束時間
                 endTimeSlider.noUiSlider.on('update', function(values, handle) {
                     document.getElementById('endTime').value = values[handle];
                 });
+
+                // 設置開始時間範圍為今天之前的最多7天
+                const startDate = document.getElementById('startTime');
+                startDate.setAttribute("min", past7DaysString); // 開始時間最早可選為過去7天
+                startDate.setAttribute("max", todayString); // 開始時間最晚可選為今天
 
                 document.getElementById('submit').addEventListener('click', () => {
                     const station = document.getElementById('station').value;
