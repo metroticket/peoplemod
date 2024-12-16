@@ -195,43 +195,52 @@
                     });
 
                     // 送出按鈕點擊事件
-                    document.getElementById('submit').addEventListener('click', () => {
-                        const station = document.getElementById('station').value; // 車站
-                        const startDate = document.getElementById('startDate').value; // 開始日期
-                        const endDate = document.getElementById('endDate').value; // 結束日期
-                        const startTime = document.getElementById('startTime').value; // 開始時間
-                        const endTime = document.getElementById('endTime').value; // 結束時間
+document.getElementById('submit').addEventListener('click', () => {
+    const station = document.getElementById('station').value; // 車站
+    const startDate = document.getElementById('startDate').value; // 開始日期
+    const endDate = document.getElementById('endDate').value; // 結束日期
+    const startTime = document.getElementById('startTime').value; // 開始時間
+    const endTime = document.getElementById('endTime').value; // 結束時間
 
-                        const errorMessageDiv = document.getElementById('error-message');
-                        errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
+    const errorMessageDiv = document.getElementById('error-message');
+    errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
 
-                        // 檢查車站和時間是否為空
-                        if (!station || !startDate || !endDate || !startTime || !endTime) {
-                            errorMessageDiv.innerText = '車站和時間不能為空';
-                            errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                            return; // 不發送訊息
-                        }
+    // 檢查車站和時間是否為空
+    if (!station || !startDate || !endDate || !startTime || !endTime) {
+        errorMessageDiv.innerText = '車站和時間不能為空';
+        errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+        return; // 不發送訊息
+    }
 
-                        const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
-                        sendMessageToLineBot(message); // 發送消息
-                    });
+    // 把日期和時間結合成一個時間戳
+    const startDateTime = new Date(`${startDate} ${startTime}`).getTime();
+    const endDateTime = new Date(`${endDate} ${endTime}`).getTime();
 
-                })
-                .catch(err => {
-                    console.error('LIFF 初始化時發生錯誤:', err);
-                });
+    // 判斷開始時間是否大於結束時間
+    if (startDateTime > endDateTime) {
+        errorMessageDiv.innerText = '開始時間不能大於結束時間';
+        errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+        return; // 不發送訊息
+    }
 
-            function sendMessageToLineBot(message) {
-                liff.sendMessages([{
-                    type: 'text',
-                    text: message
-                }]).then(() => {
-                    console.log('訊息發送成功');
-                    liff.closeWindow(); // 關閉 LIFF
-                }).catch((err) => {
-                    console.error('發送訊息時發生錯誤:', err);
-                });
-            }
+    // 如果沒有錯誤，生成訊息並發送
+    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
+    sendMessageToLineBot(message); // 發送消息
+});
+
+// 發送消息到 Line Bot
+function sendMessageToLineBot(message) {
+    liff.sendMessages([{
+        type: 'text',
+        text: message
+    }]).then(() => {
+        console.log('訊息發送成功');
+        liff.closeWindow(); // 關閉 LIFF
+    }).catch((err) => {
+        console.error('發送訊息時發生錯誤:', err);
+    });
+}
+
         });
     </script>
 </body>
