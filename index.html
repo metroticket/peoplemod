@@ -102,6 +102,7 @@
                     })
                     .catch(err => console.error('獲取使用者資料時發生錯誤:', err));
 
+                // 初始化 Flatpickr 時間選擇器
                 flatpickr("#startTime", {
                     enableTime: true,
                     dateFormat: "Y/m/d H:i", // 顯示完整的日期和時間
@@ -109,7 +110,9 @@
                     minuteIncrement: 15,  // 每次增量15分鐘
                     defaultHour: 0, // 默認時間為 00:00
                     time_24hr: true,  // 24小時制
+                    disableMobile: false, // 在移動端顯示日期選擇
                     onReady: function() {
+                        // 在手機上僅顯示 00, 15, 30, 45 分鐘
                         const timeInputs = document.querySelectorAll('.flatpickr-time');
                         timeInputs.forEach(input => {
                             input.querySelectorAll('option').forEach(option => {
@@ -130,6 +133,7 @@
                     minuteIncrement: 15,  // 每次增量15分鐘
                     defaultHour: 0, // 默認時間為 00:00
                     time_24hr: true,  // 24小時制
+                    disableMobile: false, // 在移動端顯示日期選擇
                     onReady: function() {
                         const timeInputs = document.querySelectorAll('.flatpickr-time');
                         timeInputs.forEach(input => {
