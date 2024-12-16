@@ -110,19 +110,14 @@
                     minuteIncrement: 15,  // 每次增量15分鐘
                     defaultHour: 0, // 默認時間為 00:00
                     time_24hr: true,  // 24小時制
-                    disableMobile: false, // 在移動端顯示日期選擇
-                    onReady: function() {
-                        // 在手機上僅顯示 00, 15, 30, 45 分鐘
-                        const timeInputs = document.querySelectorAll('.flatpickr-time');
-                        timeInputs.forEach(input => {
-                            input.querySelectorAll('option').forEach(option => {
-                                const minutes = parseInt(option.value.split(':')[1], 10);
-                                // 只保留 00, 15, 30, 45 分鐘
-                                if (![0, 15, 30, 45].includes(minutes)) {
-                                    option.remove();
-                                }
-                            });
-                        });
+                    disableMobile: true, // 強制使用 flatpickr 而不是手機內建時間選擇器
+                    onChange: function(selectedDates, dateStr, instance) {
+                        // 只保留 00, 15, 30, 45 分鐘
+                        const minutes = instance.input.value.split(":")[1];
+                        if (![0, 15, 30, 45].includes(parseInt(minutes, 10))) {
+                            // 如果選擇的分鐘不在範圍內，將時間設定為 00
+                            instance.setDate(dateStr.replace(minutes, '00'), true);
+                        }
                     }
                 });
 
@@ -133,18 +128,14 @@
                     minuteIncrement: 15,  // 每次增量15分鐘
                     defaultHour: 0, // 默認時間為 00:00
                     time_24hr: true,  // 24小時制
-                    disableMobile: false, // 在移動端顯示日期選擇
-                    onReady: function() {
-                        const timeInputs = document.querySelectorAll('.flatpickr-time');
-                        timeInputs.forEach(input => {
-                            input.querySelectorAll('option').forEach(option => {
-                                const minutes = parseInt(option.value.split(':')[1], 10);
-                                // 只保留 00, 15, 30, 45 分鐘
-                                if (![0, 15, 30, 45].includes(minutes)) {
-                                    option.remove();
-                                }
-                            });
-                        });
+                    disableMobile: true, // 強制使用 flatpickr 而不是手機內建時間選擇器
+                    onChange: function(selectedDates, dateStr, instance) {
+                        // 只保留 00, 15, 30, 45 分鐘
+                        const minutes = instance.input.value.split(":")[1];
+                        if (![0, 15, 30, 45].includes(parseInt(minutes, 10))) {
+                            // 如果選擇的分鐘不在範圍內，將時間設定為 00
+                            instance.setDate(dateStr.replace(minutes, '00'), true);
+                        }
                     }
                 });
 
