@@ -164,24 +164,17 @@
                     defaultHour: 0,  // 默認時間為 00:00
                 });
 
-                // 監聽開始日期和時間的變化，動態更新結束日期的最小值
+                // 監聽開始日期的變化，動態更新結束日期
                 document.getElementById('startDate').addEventListener('change', function() {
                     const startDateValue = this.value;
-                    const startTimeValue = document.getElementById('startTime').value;
-                    if (startDateValue && startTimeValue) {
-                        const startDateTime = new Date(startDateValue + ' ' + startTimeValue);
-                        // 更新結束日期最小可選時間為開始時間
-                        document.getElementById('endDate')._flatpickr.set('minDate', startDateTime);
-                    }
-                });
+                    if (startDateValue) {
+                        const nextDate = new Date(startDateValue);
+                        nextDate.setDate(nextDate.getDate() + 1);
+                        const nextDateString = nextDate.toISOString().split('T')[0];
 
-                document.getElementById('startTime').addEventListener('change', function() {
-                    const startDateValue = document.getElementById('startDate').value;
-                    const startTimeValue = this.value;
-                    if (startDateValue && startTimeValue) {
-                        const startDateTime = new Date(startDateValue + ' ' + startTimeValue);
-                        // 更新結束日期最小可選時間為開始時間
-                        document.getElementById('endDate')._flatpickr.set('minDate', startDateTime);
+                        // 更新結束日期的最小日期和最大日期為開始日期及其後一天
+                        document.getElementById('endDate')._flatpickr.set('minDate', startDateValue);
+                        document.getElementById('endDate')._flatpickr.set('maxDate', nextDateString);
                     }
                 });
 
@@ -203,7 +196,7 @@
                         return; // 不發送訊息
                     }
 
-                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`; 
+                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
                     sendMessageToLineBot(message); // 發送消息
                 });
             })
