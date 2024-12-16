@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> <!-- 引入 LIFF SDK -->
 
     <!-- 引入 Bootstrap 4 CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- 引入 bootstrap-datetimepicker CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> <!-- 引入 LIFF SDK -->
 
     <style>
         body {
@@ -106,83 +111,81 @@
     <div class="error-message" id="error-message"></div>
 </div>
 
-<!-- 引入 jQuery 和 bootstrap-datetimepicker 的 JS 文件 -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-
 <script>
-    var liffID = '2006470777-N3VdwgyO'; // 替換為你的 LIFF ID
+    // 首先初始化日期時間選擇器
+    $(document).ready(function() {
+        const today = new Date();
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
 
-    // 初始化 LIFF
-    liff.init({ liffId: liffID })
-        .then(() => {
-            console.log('LIFF 初始化成功');
-
-            // 獲取用戶資料並顯示 USERID
-            liff.getProfile()
-                .then(profile => {
-                    const userId = profile.userId; // 獲取 userId
-                    console.log('USERID:', userId);
-
-                    // 顯示USERID到頁面上
-                    document.getElementById('userId').innerText = userId;
-                })
-                .catch(err => {
-                    console.error('獲取使用者資料時發生錯誤:', err);
-                });
-
-            // 初始化日期時間選擇器
-            const today = new Date();
-            const sevenDaysAgo = new Date(today);
-            sevenDaysAgo.setDate(today.getDate() - 7);
-
-            // 確保 datetimepicker 初始化後的問題
-            $('#startTime').datetimepicker({
-                format: 'YYYY/MM/DD HH:mm',  // 日期時間格式
-                minDate: sevenDaysAgo,        // 設置最小日期
-                maxDate: today,               // 設置最大日期
-                stepping: 15,                 // 每次增量為15分鐘
-                useCurrent: false             // 不自動選擇當前時間
-            });
-
-            $('#endTime').datetimepicker({
-                format: 'YYYY/MM/DD HH:mm',
-                minDate: today,  // 設置最小日期為今天
-                stepping: 15,
-                useCurrent: false
-            });
-
-            // 監聽開始時間的變化，動態更新結束時間
-            $('#startTime').on('dp.change', function(e) {
-                const startTime = e.date;
-                $('#endTime').data('DateTimePicker').minDate(startTime); // 設置結束時間的最小時間為開始時間
-            });
-
-            // 送出按鈕點擊事件
-            document.getElementById('submit').addEventListener('click', () => {
-                const station = document.getElementById('station').value; // 車站
-                const startTime = document.getElementById('startTime').value; // 開始時間
-                const endTime = document.getElementById('endTime').value; // 結束時間
-
-                const errorMessageDiv = document.getElementById('error-message');
-                errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
-
-                // 檢查車站和時間是否為空
-                if (!station || !startTime || !endTime) {
-                    errorMessageDiv.innerText = '車站和時間不能為空';
-                    errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                    return; // 不發送訊息
-                }
-
-                const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`;
-                sendMessageToLineBot(message); // 發送消息
-            });
-        })
-        .catch(err => {
-            console.error('LIFF 初始化時發生錯誤:', err);
+        // 開始時間初始化
+        $('#startTime').datetimepicker({
+            format: 'YYYY/MM/DD HH:mm',  // 日期時間格式
+            minDate: sevenDaysAgo,        // 設置最小日期
+            maxDate: today,               // 設置最大日期
+            stepping: 15,                 // 每次增量為15分鐘
+            useCurrent: false             // 不自動選擇當前時間
         });
 
+        // 結束時間初始化
+        $('#endTime').datetimepicker({
+            format: 'YYYY/MM/DD HH:mm',
+            minDate: today,  // 設置最小日期為今天
+            stepping: 15,
+            useCurrent: false
+        });
+
+        // 監聽開始時間的變化，動態更新結束時間
+        $('#startTime').on('dp.change', function(e) {
+            const startTime = e.date;
+            $('#endTime').data('DateTimePicker').minDate(startTime); // 設置結束時間的最小時間為開始時間
+        });
+
+        // 初始化 LIFF
+        var liffID = '2006470777-N3VdwgyO'; // 替換為你的 LIFF ID
+        liff.init({ liffId: liffID })
+            .then(() => {
+                console.log('LIFF 初始化成功');
+
+                // 獲取用戶資料並顯示 USERID
+                liff.getProfile()
+                    .then(profile => {
+                        const userId = profile.userId; // 獲取 userId
+                        console.log('USERID:', userId);
+
+                        // 顯示USERID到頁面上
+                        document.getElementById('userId').innerText = userId;
+                    })
+                    .catch(err => {
+                        console.error('獲取使用者資料時發生錯誤:', err);
+                    });
+
+                // 送出按鈕點擊事件
+                document.getElementById('submit').addEventListener('click', () => {
+                    const station = document.getElementById('station').value; // 車站
+                    const startTime = document.getElementById('startTime').value; // 開始時間
+                    const endTime = document.getElementById('endTime').value; // 結束時間
+
+                    const errorMessageDiv = document.getElementById('error-message');
+                    errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
+
+                    // 檢查車站和時間是否為空
+                    if (!station || !startTime || !endTime) {
+                        errorMessageDiv.innerText = '車站和時間不能為空';
+                        errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+                        return; // 不發送訊息
+                    }
+
+                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`;
+                    sendMessageToLineBot(message); // 發送消息
+                });
+            })
+            .catch(err => {
+                console.error('LIFF 初始化時發生錯誤:', err);
+            });
+    });
+
+    // 發送消息到 LINE Bot
     function sendMessageToLineBot(message) {
         liff.sendMessages([{
             type: 'text',
