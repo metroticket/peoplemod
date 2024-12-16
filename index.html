@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> <!-- 引入 LIFF SDK -->
-    
+
     <!-- 引入 Bootstrap 4 CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     
@@ -137,6 +137,7 @@
             const sevenDaysAgo = new Date(today);
             sevenDaysAgo.setDate(today.getDate() - 7);
 
+            // 確保 datetimepicker 初始化後的問題
             $('#startTime').datetimepicker({
                 format: 'YYYY/MM/DD HH:mm',  // 日期時間格式
                 minDate: sevenDaysAgo,        // 設置最小日期
