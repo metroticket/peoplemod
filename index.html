@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/liff@2.0.0/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/no-ui-slider@15.7.0/dist/nouislider.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/no-ui-slider@15.7.0/dist/nouislider.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,6 +64,13 @@
                 font-size: 16px;
             }
         }
+        .slider-container {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .slider {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -81,10 +88,16 @@
         </select>
 
         <label for="startTime">選擇開始時間:</label>
-        <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
+        <div class="slider-container">
+            <div id="startTimeSlider" class="slider"></div>
+            <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
+        </div>
 
         <label for="endTime">選擇結束時間:</label>
-        <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
+        <div class="slider-container">
+            <div id="endTimeSlider" class="slider"></div>
+            <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
+        </div>
 
         <button id="submit">送出</button>
         <div class="error-message" id="error-message"></div>
@@ -102,41 +115,59 @@
                     })
                     .catch(err => console.error('獲取使用者資料時發生錯誤:', err));
 
-                // 初始化 Flatpickr 時間選擇器
-                flatpickr("#startTime", {
-                    enableTime: true,
-                    dateFormat: "Y/m/d H:i", // 顯示完整的日期和時間
-                    minDate: "today", // 不允許選擇過去日期
-                    minuteIncrement: 15,  // 每次增量15分鐘
-                    defaultHour: 0, // 默認時間為 00:00
-                    time_24hr: true,  // 24小時制
-                    disableMobile: true, // 強制使用 flatpickr 而不是手機內建時間選擇器
-                    onChange: function(selectedDates, dateStr, instance) {
-                        // 只保留 00, 15, 30, 45 分鐘
-                        const minutes = instance.input.value.split(":")[1];
-                        if (![0, 15, 30, 45].includes(parseInt(minutes, 10))) {
-                            // 如果選擇的分鐘不在範圍內，將時間設定為 00
-                            instance.setDate(dateStr.replace(minutes, '00'), true);
+                // 初始化 noUiSlider 時間選擇器
+                var startTimeSlider = document.getElementById('startTimeSlider');
+                var endTimeSlider = document.getElementById('endTimeSlider');
+
+                noUiSlider.create(startTimeSlider, {
+                    start: [0],
+                    connect: [true, false],
+                    step: 15, // 15 分鐘為步長
+                    range: {
+                        'min': [0],  // 00:00
+                        'max': [1440]  // 24:00
+                    },
+                    format: {
+                        to: function (value) {
+                            var hours = Math.floor(value / 60);
+                            var minutes = value % 60;
+                            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                        },
+                        from: function (value) {
+                            var parts = value.split(':');
+                            return parseInt(parts[0]) * 60 + parseInt(parts[1]);
                         }
                     }
                 });
 
-                flatpickr("#endTime", {
-                    enableTime: true,
-                    dateFormat: "Y/m/d H:i", // 顯示完整的日期和時間
-                    minDate: "today", // 不允許選擇過去日期
-                    minuteIncrement: 15,  // 每次增量15分鐘
-                    defaultHour: 0, // 默認時間為 00:00
-                    time_24hr: true,  // 24小時制
-                    disableMobile: true, // 強制使用 flatpickr 而不是手機內建時間選擇器
-                    onChange: function(selectedDates, dateStr, instance) {
-                        // 只保留 00, 15, 30, 45 分鐘
-                        const minutes = instance.input.value.split(":")[1];
-                        if (![0, 15, 30, 45].includes(parseInt(minutes, 10))) {
-                            // 如果選擇的分鐘不在範圍內，將時間設定為 00
-                            instance.setDate(dateStr.replace(minutes, '00'), true);
+                noUiSlider.create(endTimeSlider, {
+                    start: [0],
+                    connect: [true, false],
+                    step: 15, // 15 分鐘為步長
+                    range: {
+                        'min': [0],  // 00:00
+                        'max': [1440]  // 24:00
+                    },
+                    format: {
+                        to: function (value) {
+                            var hours = Math.floor(value / 60);
+                            var minutes = value % 60;
+                            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                        },
+                        from: function (value) {
+                            var parts = value.split(':');
+                            return parseInt(parts[0]) * 60 + parseInt(parts[1]);
                         }
                     }
+                });
+
+                // 更新輸入框顯示的時間
+                startTimeSlider.noUiSlider.on('update', function(values, handle) {
+                    document.getElementById('startTime').value = values[handle];
+                });
+
+                endTimeSlider.noUiSlider.on('update', function(values, handle) {
+                    document.getElementById('endTime').value = values[handle];
                 });
 
                 document.getElementById('submit').addEventListener('click', () => {
