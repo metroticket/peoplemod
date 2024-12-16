@@ -119,21 +119,44 @@
                         console.error('獲取使用者資料時發生錯誤:', err);
                     });
 
+                // 計算開始時間的最早日期（7天前）
+                const today = new Date();
+                const minStartDate = new Date(today);
+                minStartDate.setDate(today.getDate() - 7);
+                const minStartDateString = minStartDate.toISOString().split('T')[0]; // 格式化為 yyyy-mm-dd
+
                 // 初始化 Flatpickr 日期選擇器
                 flatpickr("#startTime", {
                     enableTime: true,  // 啟用時間選擇
                     dateFormat: "Y/m/d H:i",  // 顯示格式
-                    minDate: "today",  // 不允許選擇過去日期
+                    minDate: minStartDateString,  // 最早開始時間為7天前
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,  // 默認時間為 00:00
                 });
 
-                flatpickr("#endTime", {
+                // 初始化結束時間選擇器，開始時間變更時會動態更新最小可選日期
+                const endTimePicker = flatpickr("#endTime", {
                     enableTime: true,
                     dateFormat: "Y/m/d H:i",
-                    minDate: "today",  // 不允許選擇過去日期
+                    minDate: minStartDateString,  // 默認最早結束時間為7天前
                     minuteIncrement: 15,
                     defaultHour: 0,
+                    onChange: function(selectedDates, dateStr, instance) {
+                        const startTimeValue = document.getElementById('startTime').value;
+                        if (startTimeValue && new Date(dateStr) < new Date(startTimeValue)) {
+                            // 如果結束時間小於開始時間，將結束時間設置為開始時間
+                            instance.setDate(startTimeValue, true);
+                        }
+                    }
+                });
+
+                // 監聽開始時間變更事件，動態更新結束時間的最早可選時間
+                document.getElementById('startTime').addEventListener('change', function() {
+                    const startTimeValue = this.value;
+                    if (startTimeValue) {
+                        // 更新結束時間最早可選為開始時間
+                        endTimePicker.set('minDate', startTimeValue);
+                    }
                 });
 
                 // 送出按鈕點擊事件
