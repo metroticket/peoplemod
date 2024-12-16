@@ -6,12 +6,11 @@
     <title>人流查詢系統</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> <!-- 引入 LIFF SDK -->
     
-    <!-- 引入 Bootstrap 4 CSS (使表單樣式更現代化) -->
+    <!-- 引入 Bootstrap 4 CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- 引入 Flatpickr 來初始化日期時間選擇 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- 引入 bootstrap-datetimepicker CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 
     <style>
         body {
@@ -107,6 +106,11 @@
     <div class="error-message" id="error-message"></div>
 </div>
 
+<!-- 引入 jQuery 和 bootstrap-datetimepicker 的 JS 文件 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
 <script>
     var liffID = '2006470777-N3VdwgyO'; // 替換為你的 LIFF ID
 
@@ -128,40 +132,30 @@
                     console.error('獲取使用者資料時發生錯誤:', err);
                 });
 
-            // 初始化 Flatpickr 日期選擇器
+            // 初始化日期時間選擇器
             const today = new Date();
             const sevenDaysAgo = new Date(today);
             sevenDaysAgo.setDate(today.getDate() - 7);
 
-            flatpickr("#startTime", {
-                enableTime: true,  // 啟用時間選擇
-                dateFormat: "Y/m/d H:i",  // 顯示格式
-                maxDate: today,  // 今天為最大日期
-                minDate: sevenDaysAgo,  // 不允許選擇過去7天以前的日期
-                minuteIncrement: 15,  // 每次增量為15分鐘
-                defaultHour: 0,  // 默認時間為 00:00
-                defaultMinute: 0,  // 默認分鐘為 00
-                enableSeconds: false,  // 禁用秒選擇
+            $('#startTime').datetimepicker({
+                format: 'YYYY/MM/DD HH:mm',  // 日期時間格式
+                minDate: sevenDaysAgo,        // 設置最小日期
+                maxDate: today,               // 設置最大日期
+                stepping: 15,                 // 每次增量為15分鐘
+                useCurrent: false             // 不自動選擇當前時間
             });
 
-            flatpickr("#endTime", {
-                enableTime: true,
-                dateFormat: "Y/m/d H:i",
-                minDate: today,  // 不允許選擇過去日期
-                minuteIncrement: 15,  // 每次增量為15分鐘
-                defaultHour: 0,
-                defaultMinute: 0,
-                enableSeconds: false,  // 禁用秒選擇
+            $('#endTime').datetimepicker({
+                format: 'YYYY/MM/DD HH:mm',
+                minDate: today,  // 設置最小日期為今天
+                stepping: 15,
+                useCurrent: false
             });
 
-            // 監聽開始時間變化，動態更新結束時間
-            document.getElementById("startTime")._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
-                const startTime = selectedDates[0];
-                const endTime = document.getElementById('endTime')._flatpickr;
-
-                // 設置結束時間的最小時間為開始時間的下一分鐘
-                endTime.set('minDate', startTime);
-                endTime.set('minTime', startTime.getHours() + ':' + startTime.getMinutes());
+            // 監聽開始時間的變化，動態更新結束時間
+            $('#startTime').on('dp.change', function(e) {
+                const startTime = e.date;
+                $('#endTime').data('DateTimePicker').minDate(startTime); // 設置結束時間的最小時間為開始時間
             });
 
             // 送出按鈕點擊事件
