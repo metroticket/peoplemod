@@ -119,21 +119,24 @@
                         console.error('獲取使用者資料時發生錯誤:', err);
                     });
 
-                // 初始化 Flatpickr 日期選擇器
+                // 初始化 Flatpickr 日期選擇器 (開始時間)
                 flatpickr("#startTime", {
                     enableTime: true,  // 啟用時間選擇
                     dateFormat: "Y/m/d H:i",  // 顯示格式
                     minDate: "today",  // 不允許選擇過去日期
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,  // 默認時間為 00:00
+                    step: 15,  // 設定步長為 15 分鐘
                 });
 
+                // 初始化 Flatpickr 日期選擇器 (結束時間)
                 flatpickr("#endTime", {
                     enableTime: true,
                     dateFormat: "Y/m/d H:i",
                     minDate: "today",  // 不允許選擇過去日期
                     minuteIncrement: 15,
                     defaultHour: 0,
+                    step: 15,  // 設定步長為 15 分鐘
                 });
 
                 // 送出按鈕點擊事件
