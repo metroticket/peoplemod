@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <!-- Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,13 +90,17 @@
         <input type="text" id="startDate" placeholder="請選擇開始日期" readonly>
 
         <label for="startTime">選擇開始時間:</label>
-        <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
+        <select id="startTime">
+            <!-- 這裡會填充時間選項 -->
+        </select>
 
         <label for="endDate">選擇結束日期:</label>
         <input type="text" id="endDate" placeholder="請選擇結束日期" readonly>
 
         <label for="endTime">選擇結束時間:</label>
-        <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
+        <select id="endTime">
+            <!-- 這裡會填充時間選項 -->
+        </select>
 
         <button id="submit">送出</button>
         <div class="error-message" id="error-message"></div>
@@ -139,15 +140,6 @@
                     maxDate: todayString,  // 最大日期為今天
                 });
 
-                // 初始化 Flatpickr 時間選擇器（開始時間）
-                flatpickr("#startTime", {
-                    enableTime: true,  // 啟用時間選擇
-                    noCalendar: true,  // 不顯示日曆
-                    dateFormat: "H:i",  // 顯示格式為 HH:mm
-                    minuteIncrement: 15,  // 每次增量為15分鐘
-                    defaultHour: 0,  // 默認時間為 00:00
-                });
-
                 // 初始化 Flatpickr 日期選擇器（結束日期）
                 flatpickr("#endDate", {
                     dateFormat: "Y/m/d",  // 只選擇日期
@@ -155,14 +147,30 @@
                     maxDate: todayString,  // 最大日期為今天
                 });
 
-                // 初始化 Flatpickr 時間選擇器（結束時間）
-                flatpickr("#endTime", {
-                    enableTime: true,  // 啟用時間選擇
-                    noCalendar: true,  // 不顯示日曆
-                    dateFormat: "H:i",  // 顯示格式為 HH:mm
-                    minuteIncrement: 15,  // 每次增量為15分鐘
-                    defaultHour: 0,  // 默認時間為 00:00
-                });
+                // 根據時間增量創建時間選單（每15分鐘一個選項）
+                function generateTimeOptions() {
+                    const timeSelects = document.querySelectorAll('#startTime, #endTime');
+                    const startHour = 4; // 從 04:00 開始
+                    let options = '';
+
+                    // 生成每15分鐘的時間選項
+                    for (let hour = startHour; hour < 24; hour++) {
+                        for (let minute = 0; minute < 60; minute += 15) {
+                            const hourStr = hour < 10 ? `0${hour}` : hour;
+                            const minuteStr = minute < 10 ? `0${minute}` : minute;
+                            const timeValue = `${hourStr}:${minuteStr}`;
+                            options += `<option value="${timeValue}">${timeValue}</option>`;
+                        }
+                    }
+
+                    // 填充選擇框
+                    timeSelects.forEach(select => {
+                        select.innerHTML = options; // 填充時間選項
+                    });
+                }
+
+                // 生成時間選單
+                generateTimeOptions();
 
                 // 監聽開始日期的變化，動態更新結束日期
                 document.getElementById('startDate').addEventListener('change', function() {
