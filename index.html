@@ -119,21 +119,39 @@
                         console.error('獲取使用者資料時發生錯誤:', err);
                     });
 
+                // 設置開始時間限制為今天往前7天
+                const today = new Date();
+                const sevenDaysAgo = new Date(today);
+                sevenDaysAgo.setDate(today.getDate() - 7);
+
                 // 初始化 Flatpickr 日期選擇器
                 flatpickr("#startTime", {
                     enableTime: true,  // 啟用時間選擇
                     dateFormat: "Y/m/d H:i",  // 顯示格式
-                    minDate: "today",  // 不允許選擇過去日期
+                    maxDate: today,  // 今天為最大日期
+                    minDate: sevenDaysAgo,  // 不允許選擇過去7天以前的日期
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,  // 默認時間為 00:00
+                    defaultMinute: 0,  // 默認分鐘為 00
                 });
 
                 flatpickr("#endTime", {
                     enableTime: true,
                     dateFormat: "Y/m/d H:i",
-                    minDate: "today",  // 不允許選擇過去日期
-                    minuteIncrement: 15,
+                    minDate: today,  // 不允許選擇過去日期
+                    minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,
+                    defaultMinute: 0,
+                });
+
+                // 監聽開始時間變化，動態更新結束時間
+                document.getElementById("startTime")._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
+                    const startTime = selectedDates[0];
+                    const endTime = document.getElementById('endTime')._flatpickr;
+
+                    // 設置結束時間的最小時間為開始時間的下一分鐘
+                    endTime.set('minDate', startTime);
+                    endTime.set('minTime', startTime.getHours() + ':' + startTime.getMinutes());
                 });
 
                 // 送出按鈕點擊事件
