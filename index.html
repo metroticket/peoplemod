@@ -125,17 +125,18 @@
                         console.error('獲取使用者資料時發生錯誤:', err);
                     });
 
-                // 計算開始時間的最早日期（7天前）
+                // 計算今天的日期
                 const today = new Date();
                 const minStartDate = new Date(today);
-                minStartDate.setDate(today.getDate() - 7);
+                minStartDate.setDate(today.getDate() - 7); // 最早開始日期為7天前
                 const minStartDateString = minStartDate.toISOString().split('T')[0]; // 格式化為 yyyy-mm-dd
+                const todayString = today.toISOString().split('T')[0]; // 取得今天的日期
 
                 // 初始化 Flatpickr 日期選擇器（開始日期）
                 flatpickr("#startDate", {
                     dateFormat: "Y/m/d",  // 只選擇日期
                     minDate: minStartDateString,  // 最早開始日期為7天前
-                    maxDate: today,  // 最大日期為今天
+                    maxDate: todayString,  // 最大日期為今天
                 });
 
                 // 初始化 Flatpickr 時間選擇器（開始時間）
@@ -150,8 +151,8 @@
                 // 初始化 Flatpickr 日期選擇器（結束日期）
                 flatpickr("#endDate", {
                     dateFormat: "Y/m/d",  // 只選擇日期
-                    minDate: minStartDateString,  // 最早結束日期為7天前
-                    maxDate: today,  // 最大日期為今天
+                    minDate: todayString,  // 結束日期最早為今天
+                    maxDate: todayString,  // 最大日期為今天
                 });
 
                 // 初始化 Flatpickr 時間選擇器（結束時間）
@@ -163,12 +164,13 @@
                     defaultHour: 0,  // 默認時間為 00:00
                 });
 
-                // 監聽開始時間和日期的變化，動態更新結束時間的最小值
+                // 監聽開始日期和時間的變化，動態更新結束日期的最小值
                 document.getElementById('startDate').addEventListener('change', function() {
                     const startDateValue = this.value;
                     const startTimeValue = document.getElementById('startTime').value;
                     if (startDateValue && startTimeValue) {
                         const startDateTime = new Date(startDateValue + ' ' + startTimeValue);
+                        // 更新結束日期最小可選時間為開始時間
                         document.getElementById('endDate')._flatpickr.set('minDate', startDateTime);
                     }
                 });
@@ -178,6 +180,7 @@
                     const startTimeValue = this.value;
                     if (startDateValue && startTimeValue) {
                         const startDateTime = new Date(startDateValue + ' ' + startTimeValue);
+                        // 更新結束日期最小可選時間為開始時間
                         document.getElementById('endDate')._flatpickr.set('minDate', startDateTime);
                     }
                 });
