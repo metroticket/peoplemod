@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <!-- Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery Timepicker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-timepicker@1.13.1/dist/jquery.timepicker.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery-timepicker@1.13.1/dist/jquery.timepicker.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -119,24 +121,28 @@
                         console.error('獲取使用者資料時發生錯誤:', err);
                     });
 
-                // 初始化 Flatpickr 日期選擇器 (開始時間)
-                flatpickr("#startTime", {
-                    enableTime: true,  // 啟用時間選擇
-                    dateFormat: "Y/m/d H:i",  // 顯示格式
-                    minDate: "today",  // 不允許選擇過去日期
-                    minuteIncrement: 15,  // 每次增量為15分鐘
-                    defaultHour: 0,  // 默認時間為 00:00
-                    step: 15,  // 設定步長為 15 分鐘
+                // 初始化 jQuery Timepicker (開始時間)
+                $('#startTime').timepicker({
+                    timeFormat: 'H:i',
+                    interval: 15,  // 設置每15分鐘步進
+                    minTime: '00:00', // 設置最小時間
+                    maxTime: '23:45', // 設置最大時間
+                    defaultTime: '00:00', // 默認時間
+                    dynamic: true,
+                    dropdown: true,
+                    scrollbar: true
                 });
 
-                // 初始化 Flatpickr 日期選擇器 (結束時間)
-                flatpickr("#endTime", {
-                    enableTime: true,
-                    dateFormat: "Y/m/d H:i",
-                    minDate: "today",  // 不允許選擇過去日期
-                    minuteIncrement: 15,
-                    defaultHour: 0,
-                    step: 15,  // 設定步長為 15 分鐘
+                // 初始化 jQuery Timepicker (結束時間)
+                $('#endTime').timepicker({
+                    timeFormat: 'H:i',
+                    interval: 15,  // 設置每15分鐘步進
+                    minTime: '00:00',
+                    maxTime: '23:45',
+                    defaultTime: '00:00',
+                    dynamic: true,
+                    dropdown: true,
+                    scrollbar: true
                 });
 
                 // 送出按鈕點擊事件
