@@ -135,6 +135,11 @@
                     defaultMinute: 0,  // 默認分鐘為 00
                     enableSeconds: false,  // 禁用秒選擇
                     clickOpens: true,  // 點擊打開日曆
+                    mode: "range",  // 允許選擇範圍
+                    weekNumbers: true,  // 顯示週數
+                    locale: {
+                        firstDayOfWeek: 1 // 設置每週的第一天為星期一
+                    }
                 });
 
                 flatpickr("#endTime", {
@@ -146,6 +151,9 @@
                     defaultMinute: 0,
                     enableSeconds: false,  // 禁用秒選擇
                     clickOpens: true,  // 點擊打開日曆
+                    locale: {
+                        firstDayOfWeek: 1 // 設置每週的第一天為星期一
+                    }
                 });
 
                 // 監聽開始時間變化，動態更新結束時間
