@@ -89,8 +89,14 @@
             <option value="A22">A22</option>
         </select>
 
+        <label for="startDate">選擇開始日期:</label>
+        <input type="text" id="startDate" placeholder="請選擇開始日期" readonly>
+
         <label for="startTime">選擇開始時間:</label>
         <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
+
+        <label for="endDate">選擇結束日期:</label>
+        <input type="text" id="endDate" placeholder="請選擇結束日期" readonly>
 
         <label for="endTime">選擇結束時間:</label>
         <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
@@ -125,57 +131,76 @@
                 minStartDate.setDate(today.getDate() - 7);
                 const minStartDateString = minStartDate.toISOString().split('T')[0]; // 格式化為 yyyy-mm-dd
 
-                // 初始化 Flatpickr 日期選擇器
+                // 初始化 Flatpickr 日期選擇器（開始日期）
+                flatpickr("#startDate", {
+                    dateFormat: "Y/m/d",  // 只選擇日期
+                    minDate: minStartDateString,  // 最早開始日期為7天前
+                    maxDate: today,  // 最大日期為今天
+                });
+
+                // 初始化 Flatpickr 時間選擇器（開始時間）
                 flatpickr("#startTime", {
                     enableTime: true,  // 啟用時間選擇
-                    dateFormat: "Y/m/d H:i",  // 顯示格式
-                    minDate: minStartDateString,  // 最早開始時間為7天前
+                    noCalendar: true,  // 不顯示日曆
+                    dateFormat: "H:i",  // 顯示格式為 HH:mm
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,  // 默認時間為 00:00
                 });
 
-                // 初始化結束時間選擇器，開始時間變更時會動態更新最小可選日期
-                const endTimePicker = flatpickr("#endTime", {
-                    enableTime: true,
-                    dateFormat: "Y/m/d H:i",
-                    minDate: minStartDateString,  // 默認最早結束時間為7天前
-                    minuteIncrement: 15,
-                    defaultHour: 0,
-                    onChange: function(selectedDates, dateStr, instance) {
-                        const startTimeValue = document.getElementById('startTime').value;
-                        if (startTimeValue && new Date(dateStr) < new Date(startTimeValue)) {
-                            // 如果結束時間小於開始時間，將結束時間設置為開始時間
-                            instance.setDate(startTimeValue, true);
-                        }
+                // 初始化 Flatpickr 日期選擇器（結束日期）
+                flatpickr("#endDate", {
+                    dateFormat: "Y/m/d",  // 只選擇日期
+                    minDate: minStartDateString,  // 最早結束日期為7天前
+                    maxDate: today,  // 最大日期為今天
+                });
+
+                // 初始化 Flatpickr 時間選擇器（結束時間）
+                flatpickr("#endTime", {
+                    enableTime: true,  // 啟用時間選擇
+                    noCalendar: true,  // 不顯示日曆
+                    dateFormat: "H:i",  // 顯示格式為 HH:mm
+                    minuteIncrement: 15,  // 每次增量為15分鐘
+                    defaultHour: 0,  // 默認時間為 00:00
+                });
+
+                // 監聽開始時間和日期的變化，動態更新結束時間的最小值
+                document.getElementById('startDate').addEventListener('change', function() {
+                    const startDateValue = this.value;
+                    const startTimeValue = document.getElementById('startTime').value;
+                    if (startDateValue && startTimeValue) {
+                        const startDateTime = new Date(startDateValue + ' ' + startTimeValue);
+                        document.getElementById('endDate')._flatpickr.set('minDate', startDateTime);
                     }
                 });
 
-                // 監聽開始時間變更事件，動態更新結束時間的最早可選時間
                 document.getElementById('startTime').addEventListener('change', function() {
+                    const startDateValue = document.getElementById('startDate').value;
                     const startTimeValue = this.value;
-                    if (startTimeValue) {
-                        // 更新結束時間最早可選為開始時間
-                        endTimePicker.set('minDate', startTimeValue);
+                    if (startDateValue && startTimeValue) {
+                        const startDateTime = new Date(startDateValue + ' ' + startTimeValue);
+                        document.getElementById('endDate')._flatpickr.set('minDate', startDateTime);
                     }
                 });
 
                 // 送出按鈕點擊事件
                 document.getElementById('submit').addEventListener('click', () => {
                     const station = document.getElementById('station').value; // 車站
+                    const startDate = document.getElementById('startDate').value; // 開始日期
                     const startTime = document.getElementById('startTime').value; // 開始時間
+                    const endDate = document.getElementById('endDate').value; // 結束日期
                     const endTime = document.getElementById('endTime').value; // 結束時間
 
                     const errorMessageDiv = document.getElementById('error-message');
                     errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
 
                     // 檢查車站和時間是否為空
-                    if (!station || !startTime || !endTime) {
+                    if (!station || !startDate || !startTime || !endDate || !endTime) {
                         errorMessageDiv.innerText = '車站和時間不能為空';
                         errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
                         return; // 不發送訊息
                     }
 
-                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startTime}\n結束時間: ${endTime}`; 
+                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`; 
                     sendMessageToLineBot(message); // 發送消息
                 });
             })
