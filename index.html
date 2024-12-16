@@ -5,15 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
 
-    <!-- 引入 Bootstrap 4 CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- 引入 bootstrap-datetimepicker CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <!-- 引入 Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script> <!-- 引入 LIFF SDK -->
 
@@ -113,32 +107,44 @@
 
 <script>
     // 首先初始化日期時間選擇器
-    $(document).ready(function() {
+    document.addEventListener("DOMContentLoaded", function() {
         const today = new Date();
         const sevenDaysAgo = new Date(today);
         sevenDaysAgo.setDate(today.getDate() - 7);
 
         // 開始時間初始化
-        $('#startTime').datetimepicker({
-            format: 'YYYY/MM/DD HH:mm',  // 日期時間格式
-            minDate: sevenDaysAgo,        // 設置最小日期
-            maxDate: today,               // 設置最大日期
-            stepping: 15,                 // 每次增量為15分鐘
-            useCurrent: false             // 不自動選擇當前時間
+        flatpickr("#startTime", {
+            enableTime: true,
+            dateFormat: "Y/m/d H:i",  // 設定日期時間格式
+            maxDate: today,           // 設置最大日期為今天
+            minDate: sevenDaysAgo,    // 設置最小日期為7天前
+            minuteIncrement: 15,      // 每次增量為15分鐘
+            defaultHour: 0,           // 默認時間為00:00
+            defaultMinute: 0,         // 默認分鐘為00
+            enableSeconds: false,     // 禁用秒選擇
+            clickOpens: true          // 點擊選擇
         });
 
         // 結束時間初始化
-        $('#endTime').datetimepicker({
-            format: 'YYYY/MM/DD HH:mm',
-            minDate: today,  // 設置最小日期為今天
-            stepping: 15,
-            useCurrent: false
+        flatpickr("#endTime", {
+            enableTime: true,
+            dateFormat: "Y/m/d H:i",  // 設定日期時間格式
+            minDate: today,           // 設置最小日期為今天
+            minuteIncrement: 15,      // 每次增量為15分鐘
+            defaultHour: 0,           // 默認時間為00:00
+            defaultMinute: 0,         // 默認分鐘為00
+            enableSeconds: false,     // 禁用秒選擇
+            clickOpens: true          // 點擊選擇
         });
 
         // 監聽開始時間的變化，動態更新結束時間
-        $('#startTime').on('dp.change', function(e) {
-            const startTime = e.date;
-            $('#endTime').data('DateTimePicker').minDate(startTime); // 設置結束時間的最小時間為開始時間
+        document.getElementById("startTime")._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
+            const startTime = selectedDates[0];
+            const endTime = document.getElementById('endTime')._flatpickr;
+
+            // 設置結束時間的最小時間為開始時間
+            endTime.set('minDate', startTime);
+            endTime.set('minTime', startTime.getHours() + ':' + startTime.getMinutes());
         });
 
         // 初始化 LIFF
