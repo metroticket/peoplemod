@@ -53,6 +53,9 @@
             margin-top: 10px;
             display: none; /* 初始隱藏 */
         }
+        .flatpickr-calendar {
+            font-size: 16px !important; /* 改變 Flatpickr 的字體大小 */
+        }
     </style>
 </head>
 <body>
@@ -132,6 +135,8 @@
                     minDate: minStartDateString,  // 最早開始時間為7天前
                     minuteIncrement: 15,  // 每次增量為15分鐘
                     defaultHour: 0,  // 默認時間為 00:00
+                    time_24hr: true,  // 使用24小時制
+                    locale: 'zh'  // 使用中文
                 });
 
                 // 初始化結束時間選擇器，開始時間變更時會動態更新最小可選日期
@@ -141,6 +146,8 @@
                     minDate: minStartDateString,  // 默認最早結束時間為7天前
                     minuteIncrement: 15,
                     defaultHour: 0,
+                    time_24hr: true,  // 使用24小時制
+                    locale: 'zh',  // 使用中文
                     onChange: function(selectedDates, dateStr, instance) {
                         const startTimeValue = document.getElementById('startTime').value;
                         if (startTimeValue && new Date(dateStr) < new Date(startTimeValue)) {
