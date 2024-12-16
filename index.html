@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>人流查詢系統</title>
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -109,120 +114,125 @@
     <script>
         var liffID = '2006470777-N3VdwgyO'; // 替換為你的 LIFF ID
 
-        liff.init({ liffId: liffID })
-            .then(() => {
-                console.log('LIFF init');
+        // 等待 DOM 加載完畢後再初始化 LIFF 和 Flatpickr
+        window.addEventListener('load', function() {
+            // 初始化 LIFF
+            liff.init({ liffId: liffID })
+                .then(() => {
+                    console.log('LIFF init');
 
-                // 獲取用戶資料並顯示 USERID
-                liff.getProfile()
-                    .then(profile => {
-                        const userId = profile.userId; // 獲取 userId
-                        console.log('USERID:', userId);
+                    // 獲取用戶資料並顯示 USERID
+                    liff.getProfile()
+                        .then(profile => {
+                            const userId = profile.userId; // 獲取 userId
+                            console.log('USERID:', userId);
 
-                        // 顯示USERID到頁面上
-                        document.getElementById('userId').innerText = userId;
-                    })
-                    .catch(err => {
-                        console.error('獲取使用者資料時發生錯誤:', err);
+                            // 顯示USERID到頁面上
+                            document.getElementById('userId').innerText = userId;
+                        })
+                        .catch(err => {
+                            console.error('獲取使用者資料時發生錯誤:', err);
+                        });
+
+                    // 計算今天的日期
+                    const today = new Date();
+                    const minStartDate = new Date(today);
+                    minStartDate.setDate(today.getDate() - 7); // 最早開始日期為7天前
+                    const minStartDateString = minStartDate.toISOString().split('T')[0]; // 格式化為 yyyy-mm-dd
+                    const todayString = today.toISOString().split('T')[0]; // 取得今天的日期
+
+                    // 初始化 Flatpickr 日期選擇器（開始日期）
+                    flatpickr("#startDate", {
+                        dateFormat: "Y/m/d",  // 只選擇日期
+                        minDate: minStartDateString,  // 最早開始日期為7天前
+                        maxDate: todayString,  // 最大日期為今天
                     });
 
-                // 計算今天的日期
-                const today = new Date();
-                const minStartDate = new Date(today);
-                minStartDate.setDate(today.getDate() - 7); // 最早開始日期為7天前
-                const minStartDateString = minStartDate.toISOString().split('T')[0]; // 格式化為 yyyy-mm-dd
-                const todayString = today.toISOString().split('T')[0]; // 取得今天的日期
+                    // 初始化 Flatpickr 日期選擇器（結束日期）
+                    flatpickr("#endDate", {
+                        dateFormat: "Y/m/d",  // 只選擇日期
+                        minDate: minStartDateString,  // 最早結束日期為7天前
+                        maxDate: todayString,  // 最大日期為今天
+                    });
 
-                // 初始化 Flatpickr 日期選擇器（開始日期）
-                flatpickr("#startDate", {
-                    dateFormat: "Y/m/d",  // 只選擇日期
-                    minDate: minStartDateString,  // 最早開始日期為7天前
-                    maxDate: todayString,  // 最大日期為今天
-                });
+                    // 根據時間增量創建時間選單（每15分鐘一個選項）
+                    function generateTimeOptions() {
+                        const timeSelects = document.querySelectorAll('#startTime, #endTime');
+                        const startHour = 4; // 從 04:00 開始
+                        let options = '';
 
-                // 初始化 Flatpickr 日期選擇器（結束日期）
-                flatpickr("#endDate", {
-                    dateFormat: "Y/m/d",  // 只選擇日期
-                    minDate: minStartDateString,  // 最早結束日期為7天前
-                    maxDate: todayString,  // 最大日期為今天
-                });
-
-                // 根據時間增量創建時間選單（每15分鐘一個選項）
-                function generateTimeOptions() {
-                    const timeSelects = document.querySelectorAll('#startTime, #endTime');
-                    const startHour = 4; // 從 04:00 開始
-                    let options = '';
-
-                    // 生成每15分鐘的時間選項
-                    for (let hour = startHour; hour < 24; hour++) {
-                        for (let minute = 0; minute < 60; minute += 15) {
-                            const hourStr = hour < 10 ? `0${hour}` : hour;
-                            const minuteStr = minute < 10 ? `0${minute}` : minute;
-                            const timeValue = `${hourStr}:${minuteStr}`;
-                            options += `<option value="${timeValue}">${timeValue}</option>`;
+                        // 生成每15分鐘的時間選項
+                        for (let hour = startHour; hour < 24; hour++) {
+                            for (let minute = 0; minute < 60; minute += 15) {
+                                const hourStr = hour < 10 ? `0${hour}` : hour;
+                                const minuteStr = minute < 10 ? `0${minute}` : minute;
+                                const timeValue = `${hourStr}:${minuteStr}`;
+                                options += `<option value="${timeValue}">${timeValue}</option>`;
+                            }
                         }
+
+                        // 填充選擇框
+                        timeSelects.forEach(select => {
+                            select.innerHTML = options; // 填充時間選項
+                        });
                     }
 
-                    // 填充選擇框
-                    timeSelects.forEach(select => {
-                        select.innerHTML = options; // 填充時間選項
+                    // 生成時間選單
+                    generateTimeOptions();
+
+                    // 監聽開始日期的變化，動態更新結束日期
+                    document.getElementById('startDate').addEventListener('change', function() {
+                        const startDateValue = this.value;
+                        if (startDateValue) {
+                            const startDate = new Date(startDateValue); // 根據開始日期設定結束日期的範圍
+                            const maxEndDate = new Date(todayString);
+                            const endDateInput = document.getElementById('endDate');
+                            const endDateValue = endDateInput.value;
+                            
+                            // 更新結束日期的最小值
+                            endDateInput._flatpickr.set('minDate', startDateValue);
+                        }
                     });
-                }
 
-                // 生成時間選單
-                generateTimeOptions();
+                    // 送出按鈕點擊事件
+                    document.getElementById('submit').addEventListener('click', () => {
+                        const station = document.getElementById('station').value; // 車站
+                        const startDate = document.getElementById('startDate').value; // 開始日期
+                        const endDate = document.getElementById('endDate').value; // 結束日期
+                        const startTime = document.getElementById('startTime').value; // 開始時間
+                        const endTime = document.getElementById('endTime').value; // 結束時間
 
-                // 監聽開始日期的變化，動態更新結束日期
-                document.getElementById('startDate').addEventListener('change', function() {
-                    const startDateValue = this.value;
-                    if (startDateValue) {
-                        const startDate = new Date(startDateValue); // 根據開始日期設定結束日期的範圍
-                        const startDateString = startDate.toISOString().split('T')[0];
-                        const todayString = today.toISOString().split('T')[0];
+                        const errorMessageDiv = document.getElementById('error-message');
+                        errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
 
-                        // 更新結束日期的最小日期為開始日期
-                        document.getElementById('endDate')._flatpickr.set('minDate', startDateString);
-                        document.getElementById('endDate')._flatpickr.set('maxDate', todayString); // 最大日期為今天
-                    }
+                        // 檢查車站和時間是否為空
+                        if (!station || !startDate || !endDate || !startTime || !endTime) {
+                            errorMessageDiv.innerText = '車站和時間不能為空';
+                            errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+                            return; // 不發送訊息
+                        }
+
+                        const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
+                        sendMessageToLineBot(message); // 發送消息
+                    });
+
+                })
+                .catch(err => {
+                    console.error('LIFF 初始化時發生錯誤:', err);
                 });
 
-                // 送出按鈕點擊事件
-                document.getElementById('submit').addEventListener('click', () => {
-                    const station = document.getElementById('station').value; // 車站
-                    const startDate = document.getElementById('startDate').value; // 開始日期
-                    const startTime = document.getElementById('startTime').value; // 開始時間
-                    const endDate = document.getElementById('endDate').value; // 結束日期
-                    const endTime = document.getElementById('endTime').value; // 結束時間
-
-                    const errorMessageDiv = document.getElementById('error-message');
-                    errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
-
-                    // 檢查車站和時間是否為空
-                    if (!station || !startDate || !startTime || !endDate || !endTime) {
-                        errorMessageDiv.innerText = '車站和時間不能為空';
-                        errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                        return; // 不發送訊息
-                    }
-
-                    const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
-                    sendMessageToLineBot(message); // 發送消息
+            function sendMessageToLineBot(message) {
+                liff.sendMessages([{
+                    type: 'text',
+                    text: message
+                }]).then(() => {
+                    console.log('訊息發送成功');
+                    liff.closeWindow(); // 關閉 LIFF
+                }).catch((err) => {
+                    console.error('發送訊息時發生錯誤:', err);
                 });
-            })
-            .catch(err => {
-                console.error('LIFF 初始化時發生錯誤:', err);
-            });
-
-        function sendMessageToLineBot(message) {
-            liff.sendMessages([{
-                type: 'text',
-                text: message
-            }]).then(() => {
-                console.log('訊息發送成功');
-                liff.closeWindow(); // 關閉 LIFF
-            }).catch((err) => {
-                console.error('發送訊息時發生錯誤:', err);
-            });
-        }
+            }
+        });
     </script>
 </body>
 </html>
