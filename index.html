@@ -130,48 +130,66 @@
                             console.error('獲取使用者資料時發生錯誤:', err);
                         });
 
-                    // 計算今天的日期
-                    const today = new Date();
-                    const minStartDate = new Date(today);
-                    minStartDate.setDate(today.getDate() - 7); // 最早開始日期為7天前
-                    const minStartDateString = minStartDate.toISOString().split('T')[0]; // 格式化為 yyyy-mm-dd
-                    const todayString = today.toISOString().split('T')[0]; // 取得今天的日期
+// 計算今天的日期
+const today = new Date();
+const minStartDate = new Date(today);
+minStartDate.setDate(today.getDate() - 7); // 最早開始日期為7天前
+const maxStartDate = new Date(today);
+maxStartDate.setDate(today.getDate() + 1); // 最晚開始日期為1天後
 
-                    // 初始化 Flatpickr 日期選擇器（開始日期）
-                    flatpickr("#startDate", {
-                        dateFormat: "Y/m/d",  // 只選擇日期
-                        minDate: minStartDateString,  // 最早開始日期為7天前
-                        maxDate: todayString,  // 最大日期為今天
-                    });
+// 格式化日期為 yyyy-mm-dd 格式
+const minStartDateString = minStartDate.toISOString().split('T')[0]; // 7天前的日期
+const maxStartDateString = maxStartDate.toISOString().split('T')[0]; // 1天後的日期
+const todayString = today.toISOString().split('T')[0]; // 今天的日期
 
-                    // 初始化 Flatpickr 日期選擇器（結束日期）
-                    flatpickr("#endDate", {
-                        dateFormat: "Y/m/d",  // 只選擇日期
-                        minDate: minStartDateString,  // 最早結束日期為7天前
-                        maxDate: todayString,  // 最大日期為今天
-                    });
+// 初始化 Flatpickr 日期選擇器（開始日期）
+flatpickr("#startDate", {
+    dateFormat: "Y/m/d",  // 只選擇日期
+    minDate: minStartDateString,  // 最早開始日期為7天前
+    maxDate: maxStartDateString,  // 最大開始日期為今天+1天
+});
 
-                    // 根據時間增量創建時間選單（每15分鐘一個選項）
-                    function generateTimeOptions() {
-                        const timeSelects = document.querySelectorAll('#startTime, #endTime');
-                        const startHour = 4; // 從 04:00 開始
-                        let options = '';
+// 初始化 Flatpickr 日期選擇器（結束日期）
+flatpickr("#endDate", {
+    dateFormat: "Y/m/d",  // 只選擇日期
+    minDate: minStartDateString,  // 最早結束日期為7天前
+    maxDate: maxStartDateString,  // 最大結束日期為今天+1天
+});
 
-                        // 生成每15分鐘的時間選項
-                        for (let hour = startHour; hour < 24; hour++) {
-                            for (let minute = 0; minute < 60; minute += 15) {
-                                const hourStr = hour < 10 ? `0${hour}` : hour;
-                                const minuteStr = minute < 10 ? `0${minute}` : minute;
-                                const timeValue = `${hourStr}:${minuteStr}`;
-                                options += `<option value="${timeValue}">${timeValue}</option>`;
-                            }
-                        }
 
-                        // 填充選擇框
-                        timeSelects.forEach(select => {
-                            select.innerHTML = options; // 填充時間選項
-                        });
-                    }
+
+// 根據時間增量創建時間選單（每15分鐘一個選項）
+function generateTimeOptions() {
+    const timeSelects = document.querySelectorAll('#startTime, #endTime');
+    const startHour = 4; // 從 04:00 開始
+    let options = '';
+
+    // 生成從 04:00 到 03:45 的時間選項（每 15 分鐘一個選項）
+    for (let hour = startHour; hour < 24; hour++) { // 從 04:00 開始，到 23:45
+        for (let minute = 0; minute < 60; minute += 15) {
+            const hourStr = hour < 10 ? `0${hour}` : hour;
+            const minuteStr = minute < 10 ? `0${minute}` : minute;
+            const timeValue = `${hourStr}:${minuteStr}`;
+            options += `<option value="${timeValue}">${timeValue}</option>`;
+        }
+    }
+
+    // 生成從 00:00 到 03:45 的時間選項（每 15 分鐘一個選項）
+    for (let hour = 0; hour < 4; hour++) { // 從 00:00 到 03:45
+        for (let minute = 0; minute < 60; minute += 15) {
+            const hourStr = hour < 10 ? `0${hour}` : hour;
+            const minuteStr = minute < 10 ? `0${minute}` : minute;
+            const timeValue = `${hourStr}:${minuteStr}`;
+            options += `<option value="${timeValue}">${timeValue}</option>`;
+        }
+    }
+
+    // 填充選擇框
+    timeSelects.forEach(select => {
+        select.innerHTML = options; // 填充時間選項
+    });
+}
+
 
                     // 生成時間選單
                     generateTimeOptions();
