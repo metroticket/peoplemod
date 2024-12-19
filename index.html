@@ -211,6 +211,13 @@
                         timeSelects.forEach(select => select.innerHTML = options);
                     }
                     generateTimeOptions();
+
+                    // 當選擇車站時，更新顯示的車站
+                    document.getElementById('station-dropdown').addEventListener('change', function() {
+                        const selectedStation = this.value;
+                        document.getElementById('selected-station').textContent = `已選擇車站: ${selectedStation}`;
+                    });
+
                 })
                 .catch(err => {
                     console.error('LIFF 初始化失敗:', err);
@@ -223,7 +230,7 @@
             const startTime = document.getElementById('startTime').value;
             const endDate = document.getElementById('endDate').value;
             const endTime = document.getElementById('endTime').value;
-            const station = document.getElementById('selected-station').textContent.includes("進站") ? "進站" : "出站"; // 確定選擇的車站
+            const station = document.getElementById('station-dropdown').value; // 取得選擇的車站
 
             const errorMessageDiv = document.getElementById('error-message');
             errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
