@@ -70,6 +70,9 @@
         .selected {
             background-color: #d1a3f0;
         }
+        .selected-text {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +87,33 @@
             <button id="station-in" class="station-btn">進站車站</button>
             <button id="station-out" class="station-btn">出站車站</button>
         </div>
+        <p id="selected-station" class="selected-text">尚未選擇車站</p>
+
+        <label for="station">選擇車站:</label>
+        <select id="station-dropdown">
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="A3">A3</option>
+            <option value="A4">A4</option>
+            <option value="A5">A5</option>
+            <option value="A6">A6</option>
+            <option value="A7">A7</option>
+            <option value="A8">A8</option>
+            <option value="A9">A9</option>
+            <option value="A10">A10</option>
+            <option value="A11">A11</option>
+            <option value="A12">A12</option>
+            <option value="A13">A13</option>
+            <option value="A14a">A14a</option>
+            <option value="A15">A15</option>
+            <option value="A16">A16</option>
+            <option value="A17">A17</option>
+            <option value="A18">A18</option>
+            <option value="A19">A19</option>
+            <option value="A20">A20</option>
+            <option value="A21">A21</option>
+            <option value="A22">A22</option>
+        </select>
 
         <label for="startDate">選擇開始日期:</label>
         <input type="text" id="startDate" placeholder="請選擇開始日期" readonly>
@@ -206,11 +236,13 @@
                     document.getElementById('station-in').addEventListener('click', function() {
                         this.classList.add('selected');
                         document.getElementById('station-out').classList.remove('selected');
+                        document.getElementById('selected-station').textContent = "已選擇：進站車站";
                     });
 
                     document.getElementById('station-out').addEventListener('click', function() {
                         this.classList.add('selected');
                         document.getElementById('station-in').classList.remove('selected');
+                        document.getElementById('selected-station').textContent = "已選擇：出站車站";
                     });
 
                     // 送出按鈕事件
@@ -219,9 +251,10 @@
                         const startTime = document.getElementById('startTime').value;
                         const endDate = document.getElementById('endDate').value;
                         const endTime = document.getElementById('endTime').value;
+                        const station = document.getElementById('station-dropdown').value;
 
                         // 驗證日期和時間是否正確
-                        if (!startDate || !startTime || !endDate || !endTime) {
+                        if (!startDate || !startTime || !endDate || !endTime || !station) {
                             document.getElementById('error-message').textContent = '請填寫所有欄位';
                             document.getElementById('error-message').style.display = 'block';
                         } else {
