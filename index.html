@@ -253,15 +253,41 @@
                         const endTime = document.getElementById('endTime').value;
                         const station = document.getElementById('station-dropdown').value;
 
-                        // 驗證日期和時間是否正確
-                        if (!startDate || !startTime || !endDate || !endTime || !station) {
-                            document.getElementById('error-message').textContent = '請填寫所有欄位';
-                            document.getElementById('error-message').style.display = 'block';
-                        } else {
-                            // 此處可以根據需求提交資料
-                            document.getElementById('error-message').style.display = 'none';
-                            alert('查詢成功！');
+// 檢查車站和時間是否為空
+                        if (!station || !startDate || !endDate || !startTime || !endTime) {
+                            errorMessageDiv.innerText = '車站和時間不能為空';
+                            errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+                            return; // 不發送訊息
                         }
+
+                        // 把日期和時間結合成一個時間戳
+                        const startDateTime = new Date(`${startDate} ${startTime}`).getTime();
+                        const endDateTime = new Date(`${endDate} ${endTime}`).getTime();
+
+                        // 判斷開始時間是否大於結束時間
+                        if (startDateTime > endDateTime) {
+                            errorMessageDiv.innerText = '開始時間不能大於結束時間';
+                            errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+                            return; // 不發送訊息
+                        }
+
+                        // 如果沒有錯誤，生成訊息並發送
+                        const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
+                        sendMessageToLineBot(message); // 發送消息
+                    });
+
+                    // 發送訊息到 Line Bot
+                    function sendMessageToLineBot(message) {
+                        liff.sendMessages([{
+                            type: 'text',
+                            text: message
+                        }]).then(() => {
+                            console.log('訊息發送成功');
+                            liff.closeWindow(); // 關閉 LIFF
+                        }).catch((err) => {
+                            console.error('發送訊息時發生錯誤:', err);
+                        });
+                    }
                     });
                 })
                 .catch((err) => {
