@@ -137,6 +137,7 @@
 
     <script>
         var liffID = '2006470777-N3VdwgyO'; // 替換為你的 LIFF ID
+        let stationType = '';  // 用來儲存進站或出站的類型
 
         // 等待 DOM 加載完畢後再初始化 LIFF 和 Flatpickr
         window.addEventListener('load', function() {
@@ -218,6 +219,18 @@
                         document.getElementById('selected-station').textContent = `已選擇車站: ${selectedStation}`;
                     });
 
+                    // 當點擊進站按鈕時，設置 stationType 為 '進站'
+                    document.getElementById('station-in').addEventListener('click', function() {
+                        stationType = '(進站)';
+                        document.getElementById('selected-station').textContent = '已選擇: 進站';
+                    });
+
+                    // 當點擊出站按鈕時，設置 stationType 為 '出站'
+                    document.getElementById('station-out').addEventListener('click', function() {
+                        stationType = '(出站)';
+                        document.getElementById('selected-station').textContent = '已選擇: 出站';
+                    });
+
                 })
                 .catch(err => {
                     console.error('LIFF 初始化失敗:', err);
@@ -236,7 +249,7 @@
             errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
 
             // 檢查車站和時間是否為空
-            if (!station || !startDate || !endDate || !startTime || !endTime) {
+            if (!station || !startDate || !endDate || !startTime || !endTime || !stationType) {
                 errorMessageDiv.innerText = '車站和時間不能為空';
                 errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
                 return; // 不發送訊息
@@ -254,7 +267,7 @@
             }
 
             // 如果沒有錯誤，生成訊息並發送
-            const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
+            const message = `功能：人流分析${stationType}\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
             sendMessageToLineBot(message); // 發送消息
         });
 
