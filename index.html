@@ -132,7 +132,7 @@
         </select>
 
         <button id="submit">送出</button>
-        <div class="error-message" id="error-message"></div>
+        <div id="error-message" class="error-message"></div>
     </div>
 
     <script>
@@ -143,15 +143,13 @@
             // 初始化 LIFF
             liff.init({ liffId: liffID })
                 .then(() => {
-                    console.log('LIFF init');
+                    console.log('LIFF 初始化成功');
 
                     // 獲取用戶資料並顯示 USERID，但此處不再顯示
                     liff.getProfile()
                         .then(profile => {
                             const userId = profile.userId; // 獲取 userId
                             console.log('USERID:', userId);  // 可在控制台查看
-
-                            // 你仍然可以在程式中使用 userId 進行其他操作，但不再顯示在頁面
                         })
                         .catch(err => {
                             console.error('獲取使用者資料時發生錯誤:', err);
@@ -209,91 +207,62 @@
                             }
                         }
 
-                        // 填充選擇框
-                        timeSelects.forEach(select => {
-                            select.innerHTML = options; // 填充時間選項
-                        });
+                        // 插入選項到 startTime 和 endTime
+                        timeSelects.forEach(select => select.innerHTML = options);
                     }
-
-                    // 生成時間選單
                     generateTimeOptions();
-
-                    // 監聽開始日期的變化，動態更新結束日期
-                    document.getElementById('startDate').addEventListener('change', function() {
-                        const startDateValue = this.value;
-                        if (startDateValue) {
-                            const startDate = new Date(startDateValue); // 根據開始日期設定結束日期的範圍
-                            const maxEndDate = new Date(todayString);
-                            const endDateInput = document.getElementById('endDate');
-                            const endDateValue = endDateInput.value;
-                            
-                            // 更新結束日期的最小值
-                            endDateInput._flatpickr.set('minDate', startDateValue);
-                        }
-                    });
-
-                    // 監聽進站/出站選擇
-                    document.getElementById('station-in').addEventListener('click', function() {
-                        this.classList.add('selected');
-                        document.getElementById('station-out').classList.remove('selected');
-                        document.getElementById('selected-station').textContent = "已選擇：進站車站";
-                    });
-
-                    document.getElementById('station-out').addEventListener('click', function() {
-                        this.classList.add('selected');
-                        document.getElementById('station-in').classList.remove('selected');
-                        document.getElementById('selected-station').textContent = "已選擇：出站車站";
-                    });
-
-                    // 送出按鈕事件
-                    document.getElementById('submit').addEventListener('click', function() {
-                        const startDate = document.getElementById('startDate').value;
-                        const startTime = document.getElementById('startTime').value;
-                        const endDate = document.getElementById('endDate').value;
-                        const endTime = document.getElementById('endTime').value;
-                        const station = document.getElementById('station-dropdown').value;
-
-// 檢查車站和時間是否為空
-                        if (!station || !startDate || !endDate || !startTime || !endTime) {
-                            errorMessageDiv.innerText = '車站和時間不能為空';
-                            errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                            return; // 不發送訊息
-                        }
-
-                        // 把日期和時間結合成一個時間戳
-                        const startDateTime = new Date(`${startDate} ${startTime}`).getTime();
-                        const endDateTime = new Date(`${endDate} ${endTime}`).getTime();
-
-                        // 判斷開始時間是否大於結束時間
-                        if (startDateTime > endDateTime) {
-                            errorMessageDiv.innerText = '開始時間不能大於結束時間';
-                            errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                            return; // 不發送訊息
-                        }
-
-                        // 如果沒有錯誤，生成訊息並發送
-                        const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
-                        sendMessageToLineBot(message); // 發送消息
-                    });
-
-                    // 發送訊息到 Line Bot
-                    function sendMessageToLineBot(message) {
-                        liff.sendMessages([{
-                            type: 'text',
-                            text: message
-                        }]).then(() => {
-                            console.log('訊息發送成功');
-                            liff.closeWindow(); // 關閉 LIFF
-                        }).catch((err) => {
-                            console.error('發送訊息時發生錯誤:', err);
-                        });
-                    }
-                    });
                 })
-                .catch((err) => {
-                    console.error('LIFF initialization failed:', err);
+                .catch(err => {
+                    console.error('LIFF 初始化失敗:', err);
                 });
         });
+
+        // 送出按鈕事件
+        document.getElementById('submit').addEventListener('click', function() {
+            const startDate = document.getElementById('startDate').value;
+            const startTime = document.getElementById('startTime').value;
+            const endDate = document.getElementById('endDate').value;
+            const endTime = document.getElementById('endTime').value;
+            const station = document.getElementById('selected-station').textContent.includes("進站") ? "進站" : "出站"; // 確定選擇的車站
+
+            const errorMessageDiv = document.getElementById('error-message');
+            errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
+
+            // 檢查車站和時間是否為空
+            if (!station || !startDate || !endDate || !startTime || !endTime) {
+                errorMessageDiv.innerText = '車站和時間不能為空';
+                errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+                return; // 不發送訊息
+            }
+
+            // 把日期和時間結合成一個時間戳
+            const startDateTime = new Date(`${startDate} ${startTime}`).getTime();
+            const endDateTime = new Date(`${endDate} ${endTime}`).getTime();
+
+            // 判斷開始時間是否大於結束時間
+            if (startDateTime > endDateTime) {
+                errorMessageDiv.innerText = '開始時間不能大於結束時間';
+                errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
+                return; // 不發送訊息
+            }
+
+            // 如果沒有錯誤，生成訊息並發送
+            const message = `功能：人流分析\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
+            sendMessageToLineBot(message); // 發送消息
+        });
+
+        // 發送訊息到 Line Bot
+        function sendMessageToLineBot(message) {
+            liff.sendMessages([{
+                type: 'text',
+                text: message
+            }]).then(() => {
+                console.log('訊息發送成功');
+                liff.closeWindow(); // 關閉 LIFF
+            }).catch((err) => {
+                console.error('發送訊息時發生錯誤:', err);
+            });
+        }
     </script>
 </body>
 </html>
