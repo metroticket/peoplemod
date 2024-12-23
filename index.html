@@ -213,12 +213,6 @@
                     }
                     generateTimeOptions();
 
-                    // 當選擇車站時，更新顯示的車站
-                    document.getElementById('station-dropdown').addEventListener('change', function() {
-                        const selectedStation = this.value;
-                        document.getElementById('selected-station').textContent = `已選擇車站: ${selectedStation}`;
-                    });
-
                     // 當點擊進站按鈕時，設置 stationType 為 '進站'
                     document.getElementById('station-in').addEventListener('click', function() {
                         stationType = '(進站)';
