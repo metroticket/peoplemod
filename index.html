@@ -27,12 +27,12 @@
 
   <div class="form-group">
     <!-- 進/出站 -->
-    <label>選擇車站:</label>
+    <label>交易類型:</label>
     <div class="station-selection">
-      <button id="station-in"  class="station-btn">進站車站</button>
-      <button id="station-out" class="station-btn">出站車站</button>
+      <button id="station-in"  class="station-btn">進站</button>
+      <button id="station-out" class="station-btn">出站</button>
     </div>
-    <p id="selected-station" class="selected-text">尚未選擇車站</p>
+    <p id="selected-station" class="selected-text">尚未選擇交易類型</p>
 
     <label for="station-dropdown">選擇車站:</label>
     <select id="station-dropdown">
@@ -60,11 +60,11 @@
 
     <div class="row">
       <div>
-        <label for="startTime">選擇開始時間（15 分刻度，營運 04:00 起）:</label>
+        <label for="startTime">選擇開始時間:</label>
         <select id="startTime"></select>
       </div>
       <div>
-        <label for="endTime">選擇結束時間（> 開始時間，允許跨日至 03:45）:</label>
+        <label for="endTime">選擇結束時間:</label>
         <select id="endTime"></select>
       </div>
     </div>
@@ -191,19 +191,20 @@
       refreshEndDateRange();
     }
 
-    function initTimes(){
-      const startSel = document.getElementById('startTime');
-      const endSel   = document.getElementById('endTime');
-      fillSelect(startSel, ALL_TIMES);
-      fillSelect(endSel, ALL_TIMES);
+function initTimes(){
+  const startSel = document.getElementById('startTime');
+  const endSel   = document.getElementById('endTime');
+  fillSelect(startSel, ALL_TIMES);
+  fillSelect(endSel, ALL_TIMES);
 
-      // 預設 09:00 / 09:15（若存在）
-      if(ALL_TIMES.includes('09:00')) startSel.value = '09:00';
-      refreshEndTimeOptions();
+  // 不設定任何預設值，強迫使用者自己選
+  startSel.value = '';
+  endSel.value   = '';
 
-      startSel.addEventListener('change', refreshEndTimeOptions);
-      endSel.addEventListener('change', autoAdjustEndDate);
-    }
+  startSel.addEventListener('change', refreshEndTimeOptions);
+  endSel.addEventListener('change', autoAdjustEndDate);
+}
+
 
     function initStationButtons(){
       const inBtn = document.getElementById('station-in');
@@ -260,3 +261,4 @@
   </script>
 </body>
 </html>
+
