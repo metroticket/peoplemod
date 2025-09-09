@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+    <!-- LINE LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <style>
@@ -79,8 +80,6 @@
     <h1>人流查詢系統</h1>
 
     <div class="form-group">
-        <!-- 顯示使用者ID已隱藏 -->
-        
         <!-- 進站 / 出站車站選擇區 -->
         <label for="station">選擇車站:</label>
         <div class="station-selection">
@@ -89,8 +88,9 @@
         </div>
         <p id="selected-station" class="selected-text">尚未選擇車站</p>
 
-        <label for="station">選擇車站:</label>
+        <label for="station-dropdown">選擇車站:</label>
         <select id="station-dropdown">
+            <option value="">請選擇</option>
             <option value="A1">A1</option>
             <option value="A2">A2</option>
             <option value="A3">A3</option>
@@ -119,110 +119,131 @@
         <input type="text" id="startDate" placeholder="請選擇開始日期" readonly>
 
         <label for="startTime">選擇開始時間:</label>
-        <select id="startTime">
-            <!-- 這裡會填充時間選項 -->
-        </select>
+        <input type="text" id="startTime" placeholder="請選擇開始時間" readonly>
 
         <label for="endDate">選擇結束日期:</label>
         <input type="text" id="endDate" placeholder="請選擇結束日期" readonly>
 
         <label for="endTime">選擇結束時間:</label>
-        <select id="endTime">
-            <!-- 這裡會填充時間選項 -->
-        </select>
+        <input type="text" id="endTime" placeholder="請選擇結束時間" readonly>
 
         <button id="submit">送出</button>
         <div id="error-message" class="error-message"></div>
     </div>
 
     <script>
-        var liffID = '2006470777-N3VdwgyO'; // 替換為你的 LIFF ID
-        let stationType = '';  // 用來儲存進站或出站的類型
+        var liffID = '2006470777-N3VdwgyO'; // TODO: 替換為你的 LIFF ID
+        let stationType = '';  // 儲存進站或出站的類型
 
-        // 等待 DOM 加載完畢後再初始化 LIFF 和 Flatpickr
-        window.addEventListener('load', function() {
+        // 等待 DOM Ready 後初始化
+        window.addEventListener('load', function () {
             // 初始化 LIFF
             liff.init({ liffId: liffID })
                 .then(() => {
                     console.log('LIFF 初始化成功');
 
-                    // 獲取用戶資料並顯示 USERID，但此處不再顯示
+                    // 取得使用者資料（如需）
                     liff.getProfile()
                         .then(profile => {
-                            const userId = profile.userId; // 獲取 userId
-                            console.log('USERID:', userId);  // 可在控制台查看
+                            const userId = profile.userId;
+                            console.log('USERID:', userId);
                         })
-                        .catch(err => {
-                            console.error('獲取使用者資料時發生錯誤:', err);
-                        });
+                        .catch(err => console.error('獲取使用者資料時發生錯誤:', err));
 
-                    // 計算今天的日期
+                    // ===== 日期範圍設定 =====
                     const today = new Date();
                     const minStartDate = new Date(today);
-                    minStartDate.setDate(today.getDate() - 7); // 最早開始日期為7天前
+                    minStartDate.setDate(today.getDate() - 7); // 最早 7 天前
                     const maxStartDate = new Date(today);
-                    maxStartDate.setDate(today.getDate() + 1); // 最晚開始日期為1天後
+                    maxStartDate.setDate(today.getDate() + 1); // 最晚 +1 天
 
-                    // 格式化日期為 yyyy-mm-dd 格式
-                    const minStartDateString = minStartDate.toISOString().split('T')[0]; // 7天前的日期
-                    const maxStartDateString = maxStartDate.toISOString().split('T')[0]; // 1天後的日期
-                    const todayString = today.toISOString().split('T')[0]; // 今天的日期
+                    const minStartDateString = minStartDate.toISOString().split('T')[0];
+                    const maxStartDateString = maxStartDate.toISOString().split('T')[0];
 
-                    // 初始化 Flatpickr 日期選擇器（開始日期）
-                    flatpickr("#startDate", {
-                        dateFormat: "Y/m/d",  // 只選擇日期
-                        minDate: minStartDateString,  // 最早開始日期為7天前
-                        maxDate: maxStartDateString,  // 最大開始日期為今天+1天
-                    });
-
-                    // 初始化 Flatpickr 日期選擇器（結束日期）
-                    flatpickr("#endDate", {
-                        dateFormat: "Y/m/d",  // 只選擇日期
-                        minDate: minStartDateString,  // 最早結束日期為7天前
-                        maxDate: maxStartDateString,  // 最大結束日期為今天+1天
-                    });
-
-                    // 根據時間增量創建時間選單（每15分鐘一個選項）
-                    function generateTimeOptions() {
-                        const timeSelects = document.querySelectorAll('#startTime, #endTime');
-                        const startHour = 4; // 從 04:00 開始
-                        let options = '';
-
-                        // 生成從 04:00 到 03:45 的時間選項（每 15 分鐘一個選項）
-                        for (let hour = startHour; hour < 24; hour++) { // 從 04:00 開始，到 23:45
-                            for (let minute = 0; minute < 60; minute += 15) {
-                                const hourStr = hour < 10 ? `0${hour}` : hour;
-                                const minuteStr = minute < 10 ? `0${minute}` : minute;
-                                const timeValue = `${hourStr}:${minuteStr}`;
-                                options += `<option value="${timeValue}">${timeValue}</option>`;
-                            }
-                        }
-
-                        // 生成從 00:00 到 03:45 的時間選項（每 15 分鐘一個選項）
-                        for (let hour = 0; hour < 4; hour++) { // 從 00:00 到 03:45
-                            for (let minute = 0; minute < 60; minute += 15) {
-                                const hourStr = hour < 10 ? `0${hour}` : hour;
-                                const minuteStr = minute < 10 ? `0${minute}` : minute;
-                                const timeValue = `${hourStr}:${minuteStr}`;
-                                options += `<option value="${timeValue}">${timeValue}</option>`;
-                            }
-                        }
-
-                        // 插入選項到 startTime 和 endTime
-                        timeSelects.forEach(select => select.innerHTML = options);
+                    // 小工具：把 "HH:MM" 加上分鐘數回傳 "HH:MM"
+                    function addMinutesToHHMM(hhmm, add) {
+                        const [h, m] = hhmm.split(':').map(n => parseInt(n, 10));
+                        const base = new Date(2000, 0, 1, h, m, 0, 0);
+                        const t = new Date(base.getTime() + add * 60 * 1000);
+                        const HH = String(t.getHours()).padStart(2, '0');
+                        const MM = String(t.getMinutes()).padStart(2, '0');
+                        return `${HH}:${MM}`;
                     }
-                    generateTimeOptions();
 
-                    // 當點擊進站按鈕時，設置 stationType 為 '進站'
-                    document.getElementById('station-in').addEventListener('click', function() {
+                    // ===== Flatpickr：日期 =====
+                    let endDatePicker; // 需先宣告給 startDate onChange 使用
+                    const startDatePicker = flatpickr("#startDate", {
+                        dateFormat: "Y/m/d",
+                        minDate: minStartDateString,
+                        maxDate: maxStartDateString,
+                        onChange: function (selectedDates, dateStr) {
+                            // 選到開始日期 → 自動帶入並鎖定結束日期為同一天
+                            if (dateStr && endDatePicker) {
+                                endDatePicker.setDate(dateStr, true);
+                                endDatePicker.set('minDate', dateStr);
+                                endDatePicker.set('maxDate', dateStr);
+                            }
+                        }
+                    });
+
+                    endDatePicker = flatpickr("#endDate", {
+                        dateFormat: "Y/m/d",
+                        minDate: minStartDateString,
+                        maxDate: maxStartDateString
+                    });
+
+                    // ===== Flatpickr：時間（15 分刻度） =====
+                    let endTimeMin = null; // 追蹤 endTime 的最小時間
+
+                    const startTimePicker = flatpickr("#startTime", {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: "H:i",
+                        time_24hr: true,
+                        minuteIncrement: 15,
+                        defaultHour: 9,
+                        defaultMinute: 0,
+                        onChange: function (selectedDates, timeStr) {
+                            if (!timeStr) return;
+                            // 結束時間最小值 = 開始時間 + 15 分
+                            const minEnd = addMinutesToHHMM(timeStr, 15);
+                            endTimeMin = minEnd;
+                            endTimePicker.set('minTime', minEnd);
+
+                            // 若目前結束時間未設定或 <= minEnd，帶入 minEnd
+                            const currentEnd = endTimePicker.input.value;
+                            if (!currentEnd || currentEnd <= minEnd) {
+                                endTimePicker.setDate(minEnd, true);
+                            }
+                        }
+                    });
+
+                    const endTimePicker = flatpickr("#endTime", {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: "H:i",
+                        time_24hr: true,
+                        minuteIncrement: 15,
+                        defaultHour: 9,
+                        defaultMinute: 15, // 會被上面 onChange 覆蓋
+                        onOpen: function () {
+                            if (endTimeMin) endTimePicker.set('minTime', endTimeMin);
+                        }
+                    });
+
+                    // ===== 進/出站按鈕 =====
+                    document.getElementById('station-in').addEventListener('click', function () {
                         stationType = '(進站)';
                         document.getElementById('selected-station').textContent = '已選擇: 進站';
+                        this.classList.add('selected');
+                        document.getElementById('station-out').classList.remove('selected');
                     });
 
-                    // 當點擊出站按鈕時，設置 stationType 為 '出站'
-                    document.getElementById('station-out').addEventListener('click', function() {
+                    document.getElementById('station-out').addEventListener('click', function () {
                         stationType = '(出站)';
                         document.getElementById('selected-station').textContent = '已選擇: 出站';
+                        this.classList.add('selected');
+                        document.getElementById('station-in').classList.remove('selected');
                     });
 
                 })
@@ -232,50 +253,48 @@
         });
 
         // 送出按鈕事件
-        document.getElementById('submit').addEventListener('click', function() {
+        document.getElementById('submit').addEventListener('click', function () {
             const startDate = document.getElementById('startDate').value;
             const startTime = document.getElementById('startTime').value;
-            const endDate = document.getElementById('endDate').value;
-            const endTime = document.getElementById('endTime').value;
-            const station = document.getElementById('station-dropdown').value; // 取得選擇的車站
+            const endDate   = document.getElementById('endDate').value;
+            const endTime   = document.getElementById('endTime').value;
+            const station   = document.getElementById('station-dropdown').value;
 
             const errorMessageDiv = document.getElementById('error-message');
-            errorMessageDiv.style.display = 'none'; // 隱藏錯誤訊息
+            errorMessageDiv.style.display = 'none';
 
-            // 檢查車站和時間是否為空
             if (!station || !startDate || !endDate || !startTime || !endTime || !stationType) {
-                errorMessageDiv.innerText = '車站和時間不能為空';
-                errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                return; // 不發送訊息
+                errorMessageDiv.innerText = '車站與日期/時間/進出站類型不可空白';
+                errorMessageDiv.style.display = 'block';
+                return;
             }
 
-            // 把日期和時間結合成一個時間戳
-            const startDateTime = new Date(`${startDate} ${startTime}`).getTime();
-            const endDateTime = new Date(`${endDate} ${endTime}`).getTime();
-
-            // 判斷開始時間是否大於結束時間
-            if (startDateTime > endDateTime) {
-                errorMessageDiv.innerText = '開始時間不能大於結束時間';
-                errorMessageDiv.style.display = 'block'; // 顯示錯誤訊息
-                return; // 不發送訊息
+            // 結束日期被鎖為同一天 → 直接比較 HH:MM 即可
+            if (endTime <= startTime) {
+                errorMessageDiv.innerText = '結束時間必須晚於開始時間（至少 15 分鐘）';
+                errorMessageDiv.style.display = 'block';
+                return;
             }
 
-            // 如果沒有錯誤，生成訊息並發送
-            const message = `功能：人流分析${stationType}\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
-            sendMessageToLineBot(message); // 發送消息
+            const message =
+                `功能：人流分析${stationType}\n` +
+                `車站: ${station}\n` +
+                `開始時間: ${startDate} ${startTime}\n` +
+                `結束時間: ${endDate} ${endTime}`;
+
+            sendMessageToLineBot(message);
         });
 
         // 發送訊息到 Line Bot
         function sendMessageToLineBot(message) {
-            liff.sendMessages([{
-                type: 'text',
-                text: message
-            }]).then(() => {
-                console.log('訊息發送成功');
-                liff.closeWindow(); // 關閉 LIFF
-            }).catch((err) => {
-                console.error('發送訊息時發生錯誤:', err);
-            });
+            liff.sendMessages([{ type: 'text', text: message }])
+                .then(() => {
+                    console.log('訊息發送成功');
+                    liff.closeWindow(); // 關閉 LIFF
+                })
+                .catch((err) => {
+                    console.error('發送訊息時發生錯誤:', err);
+                });
         }
     </script>
 </body>
