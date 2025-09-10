@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>人流查詢系統</h1>
+  <h1>總運量查詢系統</h1>
 
   <div class="form-group">
     <!-- 進/出站 -->
@@ -60,11 +60,11 @@
 
     <div class="row">
       <div>
-        <label for="startTime">選擇開始時間:</label>
+        <label for="startTime">開始時間:</label>
         <select id="startTime"></select>
       </div>
       <div>
-        <label for="endTime">選擇結束時間:</label>
+        <label for="endTime">結束時間:</label>
         <select id="endTime"></select>
       </div>
     </div>
@@ -166,9 +166,9 @@
 
     // ===== 初始化 =====
     function initDates(){
-      const today = new Date();
-      const minStart = new Date(today); minStart.setDate(today.getDate() - 7);
-      const maxStart = new Date(today); maxStart.setDate(today.getDate() + 1);
+    const minStart = new Date('2025-01-01');
+    const today = new Date();
+    const maxStart = new Date(today); maxStart.setDate(today.getDate() + 1);
 
       const startDateEl = document.getElementById('startDate');
       const endDateEl   = document.getElementById('endDate');
@@ -240,7 +240,7 @@ function initTimes(){
           return;
         }
 
-        const message = `功能：人流分析${stationType}\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
+        const message = `功能：總運量${stationType}\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
         liff.sendMessages([{ type:'text', text: message }])
           .then(()=>{ console.log('訊息發送成功'); liff.closeWindow(); })
           .catch(err=>{ console.error('發送訊息時發生錯誤:', err); });
@@ -261,4 +261,5 @@ function initTimes(){
   </script>
 </body>
 </html>
+
 
