@@ -73,18 +73,13 @@
     <div id="error-message" class="error-message"></div>
   </div>
 
-  <script>
-    var liffID = '2006470777-N3VdwgyO'; // TODO: 換成你的 LIFF ID
+<script>
+    var liffID = '2006470777-N3VdwgyO'; // 請確認 LIFF ID 是否正確
     let stationType = '';
 
     // ===== 工具 =====
     function toYMD(d){ return d.toISOString().split('T')[0]; }
-    function addDaysStr(ymd, days){
-      const d = new Date(ymd + 'T00:00:00');
-      d.setDate(d.getDate() + days);
-      return toYMD(d);
-    }
-
+    
     // 建立營運循環時間：04:00→23:45→00:00→03:45（每 15 分）
     function buildOpTimes(){
       const list = [];
@@ -100,8 +95,8 @@
       return list;
     }
     const ALL_TIMES = buildOpTimes();
-    const TIME_INDEX = Object.fromEntries(ALL_TIMES.map((t,i)=>[t,i])); // 快速查 index
-
+    
+    // 填入時間選單
     function fillSelect(sel, arr){
       sel.innerHTML = '';
       arr.forEach(t=>{
@@ -111,100 +106,79 @@
       });
     }
 
-    // 根據 startTime 產生「之後」的 endTime 清單（循環，嚴格大於）
-    function allowedEndTimes(startTime){
-      const idx = TIME_INDEX[startTime];
-      // 從下一格開始一路到前一格（循環），確保嚴格大於
-      return ALL_TIMES.slice(idx+1).concat(ALL_TIMES.slice(0, idx+1));
-    }
-
-    // 判斷 endTime 是否跨過午夜：當 endTime 的循環 index <= startTime 的 index 即視為「隔天」
-    function isWrapToNextDay(startTime, endTime){
-      return TIME_INDEX[endTime] <= TIME_INDEX[startTime];
-    }
-
-    // 依開始時間＆結束時間，自動調整結束日期（同日或 +1）
-    function autoAdjustEndDate(){
-      const startDate = document.getElementById('startDate').value;
-      const endDateEl = document.getElementById('endDate');
-      const startTime = document.getElementById('startTime').value;
-      const endTime   = document.getElementById('endTime').value;
-      if(!startDate || !startTime || !endTime) return;
-
-      const shouldNext = isWrapToNextDay(startTime, endTime);
-      const targetDate = shouldNext ? addDaysStr(startDate, 1) : startDate;
-      if(endDateEl.value !== targetDate){
-        endDateEl.value = targetDate;
-      }
-    }
-
-    // 限制結束日期的可選範圍：startDate ~ startDate+1
-    function refreshEndDateRange(){
-      const startDate = document.getElementById('startDate').value;
-      const endDateEl = document.getElementById('endDate');
-      if(!startDate) return;
-      endDateEl.min = startDate;
-      endDateEl.max = addDaysStr(startDate, 1);
-      if(endDateEl.value < endDateEl.min) endDateEl.value = endDateEl.min;
-      if(endDateEl.value > endDateEl.max) endDateEl.value = endDateEl.max;
-    }
-
-    // 當 startTime 改變：刷新 endTime 清單並預設為 +15 分，同時調整 endDate（處理跨日）
+    // ★★★ 修改重點 1：簡化時間選單邏輯，不再強制連動日期 ★★★
+    // 當 StartTime 改變時，只負責刷新 EndTime 選單的順序或選項，但不改日期
     function refreshEndTimeOptions(){
       const startSel = document.getElementById('startTime');
       const endSel   = document.getElementById('endTime');
       const startVal = startSel.value;
+      
+      // 如果沒選開始時間，就列出所有時間
       if(!startVal){
         fillSelect(endSel, ALL_TIMES);
         return;
       }
-      const allowed = allowedEndTimes(startVal);
-      fillSelect(endSel, allowed);
-      endSel.value = allowed[0]; // 預設 +15 分
-      autoAdjustEndDate();
+      
+      // 這裡維持原本邏輯：結束時間選單會自動把「開始時間」之後的選項排在前面
+      // 但使用者仍然可以自由選擇任何時間
+      const idx = ALL_TIMES.indexOf(startVal);
+      if (idx !== -1) {
+          // 產生一個循環列表，讓預設選項比較貼心
+          const reordered = ALL_TIMES.slice(idx+1).concat(ALL_TIMES.slice(0, idx+1));
+          fillSelect(endSel, reordered);
+          endSel.value = reordered[0]; // 預設選下一個 15 分鐘
+      }
     }
 
     // ===== 初始化 =====
     function initDates(){
-    const minStart = new Date('2025-01-01');
-    const today = new Date();
-    const maxStart = new Date(today); maxStart.setDate(today.getDate() + 1);
+      const today = new Date();
+      const todayStr = toYMD(today); // 取得今天的日期字串 (yyyy-mm-dd)
+      const minStartStr = '2025-01-01'; // 設定系統最早可查詢日期
 
       const startDateEl = document.getElementById('startDate');
       const endDateEl   = document.getElementById('endDate');
 
-      startDateEl.min = toYMD(minStart);
-      startDateEl.max = toYMD(maxStart);
-      endDateEl.min   = toYMD(minStart);
-      endDateEl.max   = toYMD(maxStart);
+      // 1. 設定全域限制
+      // 開始與結束日期的最大值都是「今天」(不可選未來)
+      startDateEl.max = todayStr;
+      endDateEl.max   = todayStr;
+      
+      // 設定最早日期
+      startDateEl.min = minStartStr;
+      endDateEl.min   = minStartStr;
 
-      startDateEl.addEventListener('change', ()=>{
-        // 起日改變：預設把終日帶成同日，並限制為起日~起日+1
-        endDateEl.value = startDateEl.value;
-        refreshEndDateRange();
-        autoAdjustEndDate(); // 若等會選了跨午夜的 endTime，會自動+1天
+      // 2. 預設值設為今天
+      startDateEl.value = todayStr;
+      endDateEl.value   = todayStr;
+
+      // ★★★ 修改重點 2：監聽「開始日期」變更 ★★★
+      startDateEl.addEventListener('change', () => {
+        const newStart = startDateEl.value;
+        
+        // 規則：結束日期 不能早於 開始日期
+        endDateEl.min = newStart; 
+
+        // 如果目前選的結束日期 比 新的開始日期 還要早，就自動推移到新的開始日期
+        if(endDateEl.value < newStart){
+            endDateEl.value = newStart;
+        }
+        // 注意：endDateEl.max 依然維持 todayStr，所以使用者最多只能選到今天
       });
-
-      // 預設把起日設今天，帶動終日
-      startDateEl.value = toYMD(today);
-      endDateEl.value   = startDateEl.value;
-      refreshEndDateRange();
     }
 
-function initTimes(){
-  const startSel = document.getElementById('startTime');
-  const endSel   = document.getElementById('endTime');
-  fillSelect(startSel, ALL_TIMES);
-  fillSelect(endSel, ALL_TIMES);
+    function initTimes(){
+      const startSel = document.getElementById('startTime');
+      const endSel   = document.getElementById('endTime');
+      fillSelect(startSel, ALL_TIMES);
+      fillSelect(endSel, ALL_TIMES);
 
-  // 不設定任何預設值，強迫使用者自己選
-  startSel.value = '';
-  endSel.value   = '';
+      startSel.value = '';
+      endSel.value   = '';
 
-  startSel.addEventListener('change', refreshEndTimeOptions);
-  endSel.addEventListener('change', autoAdjustEndDate);
-}
-
+      startSel.addEventListener('change', refreshEndTimeOptions);
+      // 移除 autoAdjustEndDate 的監聽，讓使用者自由選擇日期
+    }
 
     function initStationButtons(){
       const inBtn = document.getElementById('station-in');
@@ -231,11 +205,13 @@ function initTimes(){
           return;
         }
 
-        // 實際時間戳比較（處理跨日）
+        // 實際時間戳比較 (驗證使用者選的範圍是否合法)
+        // 因為日期已經解鎖，這裡的邏輯變得很重要
         const startDT = new Date(`${startDate}T${startTime}:00`);
         const endDT   = new Date(`${endDate}T${endTime}:00`);
-        if(!(endDT > startDT)){
-          errorDiv.innerText = '結束時間必須晚於開始時間（允許跨到隔天 03:45）';
+
+        if(endDT <= startDT){
+          errorDiv.innerText = '結束時間必須晚於開始時間';
           errorDiv.style.display = 'block';
           return;
         }
@@ -250,7 +226,6 @@ function initTimes(){
     // ===== 啟動 =====
     window.addEventListener('load', function(){
       liff.init({ liffId: liffID }).then(()=>{
-        // 可選：取得使用者
         liff.getProfile().then(p=>console.log('USERID:', p.userId)).catch(()=>{});
         initDates();
         initTimes();
@@ -261,6 +236,7 @@ function initTimes(){
   </script>
 </body>
 </html>
+
 
 
 
