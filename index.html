@@ -25,139 +25,112 @@
     label { display: block; margin-bottom: 8px; font-size: 15px; color: #555; font-weight: bold; }
 
     /* 輸入框樣式 */
-    input[type="text"], select { width: 100%; padding: 14px; margin-bottom: 25px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; background: #fff; box-sizing: border-box; -webkit-appearance: none; }
-    input[readonly] { background-color: #fff; cursor: pointer; }
+    input[type="text"], .fake-input { 
+      width: 100%; padding: 14px; margin-bottom: 25px; font-size: 16px; 
+      border: 1px solid #ccc; border-radius: 8px; background: #fff; 
+      box-sizing: border-box; color: #333;
+    }
+    input[readonly], .fake-input { cursor: pointer; background-color: #fff; }
+
+    /* 模擬 select 的 div */
+    .fake-input {
+        min-height: 50px;
+        display: flex; align-items: center;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        position: relative;
+    }
+    .fake-input:after {
+        content: ''; position: absolute; right: 15px; top: 18px;
+        border: 6px solid transparent; border-top-color: #999;
+    }
+    .fake-input.has-value { color: #000; font-weight: bold; }
+    .fake-input.placeholder { color: #757575; font-weight: normal; }
 
     #submit { width: 100%; padding: 15px; background: #333; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 5px; }
     .error-message { color: red; margin-top: 15px; text-align: center; display: none; }
 
     /* =========================================
-       2. 灰黑極簡風樣式魔改
+       2. Flatpickr (日期時間) 灰黑極簡風
        ========================================= */
-    
     .flatpickr-calendar {
         background: #f2f2f2 !important; 
-        position: fixed !important;
-        top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important;
-        width: 320px !important;
-        max-height: 85vh !important;
-        overflow-y: auto !important;
-        z-index: 99999 !important;
-        box-shadow: 0 0 0 100vh rgba(0,0,0,0.5) !important;
-        border-radius: 12px !important;
-        border: 1px solid #ccc !important;
+        position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important;
+        width: 320px !important; max-height: 85vh !important; overflow-y: auto !important;
+        z-index: 99999 !important; box-shadow: 0 0 0 100vh rgba(0,0,0,0.5) !important;
+        border-radius: 12px !important; border: 1px solid #ccc !important;
     }
     .flatpickr-calendar::-webkit-scrollbar { width: 0; } 
-
-    /* 頭部 */
-    .flatpickr-months {
-        background: #f2f2f2 !important; 
-        border-bottom: 1px solid #e0e0e0;
-        padding-top: 10px !important;
-        padding-bottom: 5px !important;
-    }
-    .flatpickr-month, .flatpickr-current-month .flatpickr-monthDropdown-months,
-    .flatpickr-current-month input.cur-year {
-        color: #000 !important; 
-        fill: #000 !important;
-        font-weight: bold !important;
-    }
+    .flatpickr-months { background: #f2f2f2 !important; border-bottom: 1px solid #e0e0e0; padding-top: 10px !important; padding-bottom: 5px !important; }
+    .flatpickr-month, .flatpickr-current-month .flatpickr-monthDropdown-months, .flatpickr-current-month input.cur-year { color: #000 !important; fill: #000 !important; font-weight: bold !important; }
     .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: #000 !important; }
-
-    /* 星期列 */
     .flatpickr-weekdays { background: #f2f2f2 !important; }
     span.flatpickr-weekday { color: #000 !important; font-weight: bold !important; }
-
-    /* 日期格子 */
-    .flatpickr-day {
-        color: #333 !important;
-        height: 36px !important; line-height: 36px !important; margin: 1px !important;
-        border-radius: 6px !important;
-    }
-    .flatpickr-day.selected {
-        background: #444 !important;
-        border-color: #444 !important;
-        color: #fff !important;
-    }
+    .flatpickr-day { color: #333 !important; height: 36px !important; line-height: 36px !important; margin: 1px !important; border-radius: 6px !important; }
+    .flatpickr-day.selected { background: #444 !important; border-color: #444 !important; color: #fff !important; }
     .flatpickr-day.today { border-color: #999 !important; }
 
+    /* 時間區塊 (大箭頭) */
+    .flatpickr-time { background: #f2f2f2 !important; border-top: 1px solid #ccc !important; height: auto !important; max-height: 90px !important; padding: 12px 0 !important; display: flex !important; }
+    .flatpickr-time input.flatpickr-hour, .flatpickr-time input.flatpickr-minute { font-size: 28px !important; height: 56px !important; font-weight: bold !important; color: #000 !important; background: #fff !important; border: 1px solid #ccc !important; border-right: none !important; border-radius: 8px 0 0 8px !important; margin: 0 !important; }
+    .flatpickr-time .numInputWrapper { height: 56px !important; flex: 1; margin: 0 10px; display: flex; }
+    .flatpickr-time .numInputWrapper span.arrowUp, .flatpickr-time .numInputWrapper span.arrowDown { opacity: 1 !important; width: 45px !important; padding: 0 !important; background: #e0e0e0 !important; border: 1px solid #ccc !important; z-index: 10 !important; right: 0 !important; box-sizing: border-box; }
+    .flatpickr-time .numInputWrapper span.arrowUp { border-radius: 0 8px 0 0 !important; border-bottom: 1px solid #fff !important; }
+    .flatpickr-time .numInputWrapper span.arrowDown { border-radius: 0 0 8px 0 !important; }
+    .flatpickr-time .numInputWrapper span.arrowUp:after { border-bottom-color: #000 !important; border-width: 8px !important; top: 40% !important; left: 35% !important; }
+    .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: #000 !important; border-width: 8px !important; top: 40% !important; left: 35% !important; }
+    .flatpickr-time .numInputWrapper span.arrowUp:active, .flatpickr-time .numInputWrapper span.arrowDown:active { background: #d0d0d0 !important; }
+
     /* =========================================
-       3. ★★★ 超大箭頭方塊優化區 ★★★
+       3. ★★★ 車站複選彈窗 (自製 Modal) ★★★
        ========================================= */
-    .flatpickr-time {
-        background: #f2f2f2 !important;
-        border-top: 1px solid #ccc !important;
-        height: auto !important;
-        max-height: 90px !important;
-        padding: 12px 0 !important;
-        display: flex !important;
+    #station-modal {
+        display: none; /* 預設隱藏 */
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 999999;
+        justify-content: center; align-items: center;
     }
+    #station-modal.open { display: flex; }
 
-    /* 數字輸入框：左邊圓角 */
-    .flatpickr-time input.flatpickr-hour, 
-    .flatpickr-time input.flatpickr-minute {
-        font-size: 28px !important;
-        height: 56px !important;
-        font-weight: bold !important;
-        color: #000 !important;
-        background: #fff !important; 
-        border: 1px solid #ccc !important;
-        border-right: none !important; 
-        border-radius: 8px 0 0 8px !important; 
-        margin: 0 !important; 
-    }
-
-    /* 箭頭容器 */
-    .flatpickr-time .numInputWrapper {
-        height: 56px !important;
-        flex: 1;
-        margin: 0 10px;
-        display: flex;
-    }
-
-    /* 箭頭按鈕：實體化方塊 */
-    .flatpickr-time .numInputWrapper span.arrowUp,
-    .flatpickr-time .numInputWrapper span.arrowDown {
-        opacity: 1 !important;
-        width: 45px !important; /* 大寬度 */
-        padding: 0 !important;
-        background: #e0e0e0 !important; /* 實體背景 */
-        border: 1px solid #ccc !important;
-        z-index: 10 !important;
-        right: 0 !important;
-        box-sizing: border-box;
+    .modal-content {
+        background: #f2f2f2; width: 320px; max-height: 85vh;
+        border-radius: 12px; border: 1px solid #ccc;
+        display: flex; flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
     
-    /* 上箭頭 */
-    .flatpickr-time .numInputWrapper span.arrowUp {
-        border-radius: 0 8px 0 0 !important;
-        border-bottom: 1px solid #fff !important;
-    }
-    /* 下箭頭 */
-    .flatpickr-time .numInputWrapper span.arrowDown {
-        border-radius: 0 0 8px 0 !important;
+    .modal-header {
+        padding: 15px; border-bottom: 1px solid #ccc;
+        font-weight: bold; font-size: 18px; text-align: center; color: #333;
     }
 
-    /* 箭頭圖案：加大 */
-    .flatpickr-time .numInputWrapper span.arrowUp:after {
-        border-bottom-color: #000 !important;
-        border-width: 8px !important;
-        top: 40% !important;
-        left: 35% !important;
-    }
-    
-    .flatpickr-time .numInputWrapper span.arrowDown:after {
-        border-top-color: #000 !important;
-        border-width: 8px !important;
-        top: 40% !important;
-        left: 35% !important;
+    .modal-body {
+        flex: 1; overflow-y: auto; padding: 10px;
     }
 
-    /* 按下去的效果 */
-    .flatpickr-time .numInputWrapper span.arrowUp:active,
-    .flatpickr-time .numInputWrapper span.arrowDown:active {
-        background: #d0d0d0 !important;
+    /* 車站選項按鈕 */
+    .station-option {
+        display: block; width: 100%; padding: 12px 15px; margin-bottom: 8px;
+        background: #fff; border: 1px solid #ddd; border-radius: 8px;
+        font-size: 16px; text-align: left; cursor: pointer;
+        box-sizing: border-box; transition: all 0.1s;
     }
+    /* 選中樣式：深灰底白字 */
+    .station-option.selected {
+        background: #444; color: #fff; border-color: #444; font-weight: bold;
+    }
+    .station-option.selected:after {
+        content: '✓'; float: right;
+    }
+
+    .modal-footer {
+        padding: 15px; border-top: 1px solid #ccc;
+        display: flex; gap: 10px;
+    }
+    .modal-btn {
+        flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; cursor: pointer;
+    }
+    .btn-cancel { background: #e0e0e0; color: #333; }
+    .btn-confirm { background: #333; color: #fff; }
 
   </style>
 </head>
@@ -166,41 +139,30 @@
   <div class="form-group">
     <h1>總運量查詢系統</h1>
 
-    <label>選擇車站</label>
-    <select id="station-dropdown">
-      <option value="">請選擇車站</option>
-      <option value="A1">A1 台北車站</option>
-      <option value="A2">A2 三重站</option>
-      <option value="A3">A3 新北產業園區站</option>
-      <option value="A4">A4 新莊副都心站</option>
-      <option value="A5">A5 泰山站</option>
-      <option value="A6">A6 泰山貴和站</option>
-      <option value="A7">A7 體育大學站</option>
-      <option value="A8">A8 長庚醫院站</option>
-      <option value="A9">A9 林口站</option>
-      <option value="A10">A10 山鼻站</option>
-      <option value="A11">A11 坑口站</option>
-      <option value="A12">A12 機場第一航廈站</option>
-      <option value="A13">A13 機場第二航廈站</option>
-      <option value="A14a">A14a 機場旅館站</option>
-      <option value="A15">A15 大園站</option>
-      <option value="A16">A16 橫山站</option>
-      <option value="A17">A17 領航站</option>
-      <option value="A18">A18 高鐵桃園站</option>
-      <option value="A19">A19 桃園體育園區站</option>
-      <option value="A20">A20 興南站</option>
-      <option value="A21">A21 環北站</option>
-      <option value="A22">A22 老街溪站</option>
-    </select>
+    <label>選擇車站 (可複選)</label>
+    <div id="station-trigger" class="fake-input placeholder">請點擊選擇車站...</div>
+    <input type="hidden" id="station-value">
 
-    <label>開始時間 (日期+時間)</label>
+    <label>開始時間</label>
     <input type="text" id="picker-start" placeholder="點擊選擇..." readonly>
 
-    <label>結束時間 (日期+時間)</label>
+    <label>結束時間</label>
     <input type="text" id="picker-end" placeholder="請先選擇開始時間" readonly>
 
     <button id="submit">查詢運量</button>
     <div id="error-message" class="error-message"></div>
+  </div>
+
+  <div id="station-modal">
+    <div class="modal-content">
+        <div class="modal-header">請選擇車站</div>
+        <div class="modal-body" id="station-list-container">
+            </div>
+        <div class="modal-footer">
+            <button class="modal-btn btn-cancel" id="btn-close-modal">取消</button>
+            <button class="modal-btn btn-confirm" id="btn-confirm-modal">確認</button>
+        </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -208,11 +170,101 @@
 
   <script>
     var liffID = '2006470777-N3VdwgyO'; 
-    
-    // 交易類型變數已移除
+
+    // 車站資料
+    const stationData = [
+        {id:'A1', name:'A1 台北車站'}, {id:'A2', name:'A2 三重站'}, {id:'A3', name:'A3 新北產業園區站'},
+        {id:'A4', name:'A4 新莊副都心站'}, {id:'A5', name:'A5 泰山站'}, {id:'A6', name:'A6 泰山貴和站'},
+        {id:'A7', name:'A7 體育大學站'}, {id:'A8', name:'A8 長庚醫院站'}, {id:'A9', name:'A9 林口站'},
+        {id:'A10', name:'A10 山鼻站'}, {id:'A11', name:'A11 坑口站'}, {id:'A12', name:'A12 機場第一航廈站'},
+        {id:'A13', name:'A13 機場第二航廈站'}, {id:'A14a', name:'A14a 機場旅館站'}, {id:'A15', name:'A15 大園站'},
+        {id:'A16', name:'A16 橫山站'}, {id:'A17', name:'A17 領航站'}, {id:'A18', name:'A18 高鐵桃園站'},
+        {id:'A19', name:'A19 桃園體育園區站'}, {id:'A20', name:'A20 興南站'}, {id:'A21', name:'A21 環北站'},
+        {id:'A22', name:'A22 老街溪站'}
+    ];
+
+    let selectedStations = []; // 暫存選中的車站 ID
     let startPicker = null;
     let endPicker = null;
 
+    // ============================================
+    // 1. 車站複選邏輯
+    // ============================================
+    function initStationPicker() {
+        const modal = document.getElementById('station-modal');
+        const container = document.getElementById('station-list-container');
+        const trigger = document.getElementById('station-trigger');
+        const hiddenInput = document.getElementById('station-value');
+        const btnCancel = document.getElementById('btn-close-modal');
+        const btnConfirm = document.getElementById('btn-confirm-modal');
+
+        // 產生車站列表
+        stationData.forEach(st => {
+            const btn = document.createElement('div');
+            btn.className = 'station-option';
+            btn.textContent = st.name;
+            btn.dataset.id = st.id;
+            
+            // 點擊選項 -> 切換選中狀態
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('selected');
+            });
+            container.appendChild(btn);
+        });
+
+        // 打開彈窗
+        trigger.addEventListener('click', () => {
+            // 根據目前已選的值，恢復 UI 狀態
+            const currentIds = hiddenInput.value ? hiddenInput.value.split(',') : [];
+            const options = container.querySelectorAll('.station-option');
+            options.forEach(opt => {
+                if(currentIds.includes(opt.dataset.id)) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+            modal.classList.add('open');
+        });
+
+        // 關閉彈窗 (不儲存)
+        btnCancel.addEventListener('click', () => {
+            modal.classList.remove('open');
+        });
+
+        // 確認按鈕
+        btnConfirm.addEventListener('click', () => {
+            const selectedOptions = container.querySelectorAll('.station-option.selected');
+            const ids = [];
+            const names = [];
+            
+            selectedOptions.forEach(opt => {
+                ids.push(opt.dataset.id);
+                names.push(opt.textContent);
+            });
+
+            // 更新隱藏值
+            hiddenInput.value = ids.join(',');
+
+            // 更新顯示文字
+            if(ids.length > 0) {
+                trigger.textContent = names.join('、');
+                trigger.classList.remove('placeholder');
+                trigger.classList.add('has-value');
+            } else {
+                trigger.textContent = '請點擊選擇車站...';
+                trigger.classList.add('placeholder');
+                trigger.classList.remove('has-value');
+            }
+
+            modal.classList.remove('open');
+        });
+    }
+
+
+    // ============================================
+    // 2. 日期時間邏輯 (Flatpickr)
+    // ============================================
     function getSnappedDate() {
         const date = new Date();
         const msPer15Min = 1000 * 60 * 15;
@@ -262,17 +314,20 @@
         });
     }
 
+    // ============================================
+    // 3. 送出邏輯
+    // ============================================
     function initSubmit(){
       document.getElementById('submit').addEventListener('click', ()=>{
         const startVal = document.getElementById('picker-start').value;
         const endVal   = document.getElementById('picker-end').value;
-        const station  = document.getElementById('station-dropdown').value;
+        const stationVal = document.getElementById('station-value').value; // 這是逗號分隔的 ID 字串
+        const stationText = document.getElementById('station-trigger').textContent; // 這是顯示的中文站名
         const errorDiv = document.getElementById('error-message');
 
         errorDiv.style.display = 'none';
 
-        // 移除 stationType 的檢查
-        if(!station || !startVal || !endVal){
+        if(!stationVal || !startVal || !endVal){
           errorDiv.innerText = '請完整填寫所有欄位';
           errorDiv.style.display = 'block';
           return;
@@ -284,8 +339,7 @@
             return;
         }
 
-        // 修改傳送的文字內容
-        const message = `功能：總運量查詢\n車站: ${station}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
+        const message = `功能：總運量查詢\n車站: ${stationText}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
         
         if (liff.isInClient()) {
             liff.sendMessages([{ type:'text', text: message }])
@@ -302,8 +356,9 @@
     }
 
     window.addEventListener('load', function(){
-      initFlatpickr();
-      initSubmit();
+      initStationPicker(); // 初始化車站複選
+      initFlatpickr();     // 初始化日期
+      initSubmit();        // 初始化送出
       
       liff.init({ liffId: liffID }).then(()=>{
         if(!liff.isLoggedIn() && liff.isInClient()){ }
