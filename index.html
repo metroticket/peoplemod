@@ -16,130 +16,104 @@
        ========================================= */
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", Roboto, sans-serif; 
-      margin: 0; 
-      padding: 20px; 
-      background: #f0f2f5; 
-      color: #333;
+      margin: 0; padding: 20px; background: #f0f2f5; color: #333;
     }
-
     .form-group { 
-      background: #fff;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
     h1 { font-size: 20px; text-align: center; margin-bottom: 20px; color: #1565c0; }
     label { display: block; margin-bottom: 8px; font-size: 15px; color: #555; font-weight: bold; }
 
-    /* 按鈕樣式 */
     .station-selection { display: flex; gap: 10px; margin-bottom: 10px; }
-    .station-btn { 
-      flex: 1; padding: 12px; border: 1px solid #ddd; background: #fafafa; 
-      color: #666; border-radius: 8px; font-size: 16px; 
-    }
-    .station-btn.selected { 
-      background: #e3f2fd; color: #1565c0; border-color: #1565c0; font-weight: bold; 
-    }
+    .station-btn { flex: 1; padding: 12px; border: 1px solid #ddd; background: #fafafa; color: #666; border-radius: 8px; font-size: 16px; }
+    .station-btn.selected { background: #e3f2fd; color: #1565c0; border-color: #1565c0; font-weight: bold; }
     #selected-station { font-size: 13px; color: #1565c0; text-align: right; height: 20px; margin-bottom: 15px;}
 
-    /* 輸入框樣式 */
-    input[type="text"], select { 
-      width: 100%; padding: 14px; margin-bottom: 20px; font-size: 16px; 
-      border: 1px solid #ccc; border-radius: 8px; background: #fff; 
-      box-sizing: border-box; -webkit-appearance: none; 
-    }
+    input[type="text"], select { width: 100%; padding: 14px; margin-bottom: 20px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; background: #fff; box-sizing: border-box; -webkit-appearance: none; }
     input[readonly] { background-color: #fff; cursor: pointer; }
 
-    #submit { 
-      width: 100%; padding: 15px; background: #1565c0; color: #fff; 
-      border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 10px; 
-    }
+    #submit { width: 100%; padding: 15px; background: #1565c0; color: #fff; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 10px; }
     .error-message { color: red; margin-top: 15px; text-align: center; display: none; }
 
     /* =========================================
-       2. ★★★ 關鍵修復：彈窗樣式強制調整 ★★★
+       2. ★★★ 彈窗高度修復工程 ★★★
        ========================================= */
     
-    /* 強制將彈窗固定在螢幕正中央 */
     .flatpickr-calendar {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
-        width: 320px !important; /* 固定寬度，適應手機 */
-        max-width: 95vw !important; /* 防止超出小螢幕 */
+        width: 320px !important;
+        
+        /* ★ 關鍵修復 1：限制最大高度為螢幕的 85% */
+        max-height: 85vh !important; 
+        
+        /* ★ 關鍵修復 2：如果內容還是太長，允許視窗內部捲動 */
+        overflow-y: auto !important; 
+        
         z-index: 99999 !important;
-        box-shadow: 0 0 0 100vh rgba(0,0,0,0.5) !important; /* 用陰影做全螢幕遮罩，保證能蓋住 */
+        box-shadow: 0 0 0 100vh rgba(0,0,0,0.6) !important;
+        border-radius: 12px !important;
     }
 
-    /* 調整月份區域 */
+    /* 隱藏捲軸但保留功能 (美觀) */
+    .flatpickr-calendar::-webkit-scrollbar { width: 0; }
+
     .flatpickr-months {
         background: #1565c0 !important;
-        border-radius: 5px 5px 0 0 !important;
-        padding: 10px 0 !important;
+        padding: 5px 0 !important; /* 減少上方留白 */
     }
     .flatpickr-month { color: #fff !important; fill: #fff !important; }
     .flatpickr-current-month .flatpickr-monthDropdown-months,
     .flatpickr-current-month input.cur-year {
         color: #fff !important; font-weight: bold !important;
     }
+    .flatpickr-weekdays { background: #1565c0 !important; height: 28px !important; }
+    span.flatpickr-weekday { color: #bbdefb !important; line-height: 28px !important; }
 
-    /* 調整星期標題 */
-    .flatpickr-weekdays { background: #1565c0 !important; }
-    span.flatpickr-weekday { color: #bbdefb !important; }
-
-    /* ★ 關鍵：縮小日期格子的高度，讓整體視窗變短，避免被手機切到 ★ */
+    /* ★ 關鍵修復 3：極致壓縮日期格子的高度 */
     .flatpickr-day {
-        height: 38px !important;
-        line-height: 38px !important;
-        margin: 1px !important;
+        height: 34px !important; /* 從 38px 縮小到 34px */
+        line-height: 34px !important;
+        margin: 0px !important; /* 移除間距 */
+        border-radius: 4px !important; /* 稍微方一點比較省空間 */
+        border: 1px solid transparent !important;
     }
 
-    /* 選中狀態的高對比色 */
     .flatpickr-day.selected {
-        background: #0d47a1 !important; /* 深藍色 */
+        background: #0d47a1 !important;
         border-color: #0d47a1 !important;
-        font-weight: bold !important;
     }
 
-    /* ★ 關鍵：時間選擇區塊樣式優化 ★ */
+    /* ★ 關鍵修復 4：確保時間區塊一定顯示 */
     .flatpickr-time {
-        border-top: 1px solid #eee !important;
+        height: auto !important;
+        max-height: 80px !important;
         padding: 10px 0 !important;
-        height: auto !important; /* 自動高度 */
+        border-top: 1px solid #eee !important;
         background: #fff !important;
-        border-radius: 0 0 5px 5px !important;
+        display: flex !important; /* 強制顯示 */
     }
 
-    /* 加大時間數字，讓手指好點 */
     .flatpickr-time input.flatpickr-hour, 
     .flatpickr-time input.flatpickr-minute {
         font-size: 24px !important;
-        font-weight: bold !important;
         height: 40px !important;
-        color: #333 !important;
+        font-weight: bold !important;
+        background: #f5f5f5 !important;
+        border-radius: 5px !important;
     }
 
-    /* 讓箭頭永遠顯示且變大 */
+    /* 箭頭樣式 */
     .flatpickr-time .numInputWrapper span.arrowUp,
     .flatpickr-time .numInputWrapper span.arrowDown {
         opacity: 1 !important;
-        padding: 0 5px !important;
+        padding: 0 4px !important;
     }
-    .flatpickr-time .numInputWrapper span.arrowUp:after { border-bottom-color: #1565c0 !important; }
-    .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: #1565c0 !important; }
-
-    /* 在時間上方加提示文字 */
-    .flatpickr-time:before {
-        content: "上下滑動數字調整時間";
-        display: block;
-        text-align: center;
-        font-size: 12px;
-        color: #888;
-        margin-bottom: 5px;
-        width: 100%;
-    }
+    
+    /* 確保輸入框看起來像可點擊 */
+    .flatpickr-time input:focus { background: #fff !important; }
 
   </style>
 </head>
@@ -182,10 +156,10 @@
       <option value="A22">A22 老街溪站</option>
     </select>
 
-    <label>開始時間</label>
+    <label>開始時間 (日期+時間)</label>
     <input type="text" id="picker-start" placeholder="點擊選擇..." readonly>
 
-    <label>結束時間</label>
+    <label>結束時間 (日期+時間)</label>
     <input type="text" id="picker-end" placeholder="請先選擇開始時間" readonly>
 
     <button id="submit">查詢運量</button>
@@ -229,7 +203,7 @@
             time_24hr: true,
             minuteIncrement: 15,
             locale: "zh_tw",
-            disableMobile: "true", // 必填：強制使用我們自訂的 CSS
+            disableMobile: "true", 
             minDate: minDate
         };
 
