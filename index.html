@@ -196,13 +196,12 @@
     let startPicker = null;
     let endPicker = null;
 
-    // ===== 初始化 Flatpickr 日期時間選擇器 =====
-    function initFlatpickr() {
-// ===== 工具：取得最近的 15 分鐘整點時間 =====
+    // ===== 工具：取得最近的 15 分鐘整點時間 =====
+    // 這個函式現在正確地放在最外層了
     function getRoundedDate(minutesInterval) {
         const date = new Date();
         const ms = 1000 * 60 * minutesInterval; // 轉換成毫秒
-        // 使用 Math.round 四捨五入到最近的 interval (想要無條件捨去可用 Math.floor)
+        // 使用 Math.round 四捨五入到最近的 interval
         const roundedDate = new Date(Math.round(date.getTime() / ms) * ms);
         return roundedDate;
     }
@@ -212,7 +211,7 @@
         const today = new Date();
         const minDate = "2025-01-01"; 
         
-        // ★★★ 修正重點：取得校正後的現在時間 (例如 10:22 -> 10:30) ★★★
+        // 取得校正後的現在時間 (例如 10:22 -> 10:30)
         const snappedTime = getRoundedDate(15);
 
         // 通用設定
@@ -225,9 +224,9 @@
             disableMobile: "true",
             maxDate: today,
             minDate: minDate,
-            defaultDate: snappedTime, // ★★★ 設定預設時間為校正後的時間 ★★★
-            defaultHour: snappedTime.getHours(), // 確保小時對應
-            defaultMinute: snappedTime.getMinutes() // 確保分鐘對應
+            defaultDate: snappedTime, // 設定預設時間為校正後的時間
+            defaultHour: snappedTime.getHours(), 
+            defaultMinute: snappedTime.getMinutes()
         };
 
         // 1. 設定開始時間
@@ -244,7 +243,6 @@
         endPicker = flatpickr("#picker-end", {
             ...commonConfig
         });
-    }
     }
 
     // ===== 按鈕與邏輯 =====
@@ -284,7 +282,7 @@
           return;
         }
 
-        // 2. 檢查時間邏輯 (Flatpickr 格式已經是 YYYY-MM-DD HH:MM，可直接比較字串或轉Date)
+        // 2. 檢查時間邏輯
         if (startVal >= endVal) {
             errorDiv.innerText = '結束時間必須晚於開始時間';
             errorDiv.style.display = 'block';
@@ -292,7 +290,6 @@
         }
 
         // 3. 發送 LIFF 訊息
-        // 格式不需要拆開了，直接使用 startVal 即可 (e.g. "2025-12-09 10:15")
         const message = `功能：總運量${stationType}\n車站: ${station}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
         
         if (liff.isInClient()) {
@@ -320,11 +317,10 @@
       // 初始化 LIFF
       liff.init({ liffId: liffID }).then(()=>{
         if(!liff.isLoggedIn() && liff.isInClient()){
-             // 視需求決定是否要強制登入，通常 LIFF 在 LINE 內開啟已自動登入
+             // 視需求決定是否要強制登入
         }
       }).catch(err=>console.error('LIFF Error:', err));
     });
   </script>
 </body>
 </html>
-
