@@ -2,241 +2,312 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>總運量查詢系統</title>
+  
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; padding: 10px; background: #f9f9f9; }
-    h1 { font-size: 24px; text-align: center; }
-    .form-group { margin-top: 20px; }
-    label { display: block; margin-bottom: 5px; font-size: 16px; }
-    input, select { width: 100%; padding: 10px; margin-bottom: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; background: #fff; }
-    button { width: 100%; padding: 12px; background: #e0c3f8; color:#000; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
-    button:hover { background: #d1a3f0; }
-    .error-message { color: red; margin-top: 10px; display: none; }
-    .station-selection { display: flex; gap: 10px; }
-    .station-selection button { flex: 1; background: #e0c3f8; }
-    .selected { background: #d1a3f0; }
-    .selected-text { font-weight: bold; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+    /* 全局設定：簡潔白底風格 */
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+      margin: 0; 
+      padding: 20px; 
+      background: #ffffff; 
+      color: #333;
+    }
+
+    h1 { 
+      font-size: 22px; 
+      text-align: center; 
+      margin-bottom: 25px; 
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    /* 表單容器 */
+    .form-group { 
+      max-width: 500px; 
+      margin: 0 auto; 
+    }
+
+    label { 
+      display: block; 
+      margin-bottom: 8px; 
+      font-size: 15px; 
+      color: #555; 
+      font-weight: 500;
+    }
+
+    /* 進出站按鈕群組 */
+    .station-selection { 
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 5px; 
+    }
+    
+    .station-btn { 
+      flex: 1; 
+      padding: 12px;
+      border: 1px solid #e0e0e0; 
+      background: #f8f9fa; 
+      color: #666;
+      border-radius: 8px; 
+      font-size: 16px; 
+      cursor: pointer; 
+      transition: all 0.2s;
+    }
+    
+    .station-btn.selected { 
+      background: #e0c3f8; 
+      border-color: #d1a3f0;
+      color: #2c0b4a;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(224, 195, 248, 0.4);
+    }
+
+    #selected-station {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 20px;
+      text-align: right;
+      height: 20px; /* 固定高度避免跳動 */
+    }
+
+    /* 輸入框樣式優化 */
+    input[type="text"], /* Flatpickr 渲染後是 text */
+    select { 
+      width: 100%; 
+      padding: 12px; 
+      margin-bottom: 20px; 
+      font-size: 16px; 
+      border: 1px solid #ddd; 
+      border-radius: 8px; 
+      background: #fff; 
+      box-sizing: border-box; /* 確保 padding 不會撐開寬度 */
+      -webkit-appearance: none; /* 移除 iOS 預設樣式 */
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #e0c3f8;
+      box-shadow: 0 0 0 3px rgba(224, 195, 248, 0.2);
+    }
+
+    /* 送出按鈕 */
+    #submit { 
+      width: 100%; 
+      padding: 15px; 
+      background: #2c3e50; 
+      color: #fff; 
+      border: none; 
+      border-radius: 8px; 
+      font-size: 18px; 
+      font-weight: bold;
+      cursor: pointer; 
+      margin-top: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: background 0.2s;
+    }
+    
+    #submit:active { 
+      background: #1a252f; 
+      transform: translateY(1px);
+    }
+
+    /* 錯誤訊息 */
+    .error-message { 
+      color: #e74c3c; 
+      margin-top: 15px; 
+      text-align: center; 
+      font-size: 14px;
+      padding: 10px;
+      background: #fdeaea;
+      border-radius: 5px;
+      display: none; 
+    }
+
+    /* Flatpickr 的一些微調 (讓手機上更好點) */
+    .flatpickr-calendar {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
   </style>
 </head>
 <body>
-  <h1>總運量查詢系統</h1>
 
   <div class="form-group">
-    <!-- 進/出站 -->
-    <label>交易類型:</label>
+    <h1>總運量查詢系統</h1>
+
+    <label>交易類型</label>
     <div class="station-selection">
       <button id="station-in"  class="station-btn">進站</button>
       <button id="station-out" class="station-btn">出站</button>
     </div>
-    <p id="selected-station" class="selected-text">尚未選擇交易類型</p>
+    <p id="selected-station"></p>
 
-    <label for="station-dropdown">選擇車站:</label>
+    <label for="station-dropdown">選擇車站</label>
     <select id="station-dropdown">
-      <option value="">請選擇</option>
-      <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option>
-      <option value="A4">A4</option><option value="A5">A5</option><option value="A6">A6</option>
-      <option value="A7">A7</option><option value="A8">A8</option><option value="A9">A9</option>
-      <option value="A10">A10</option><option value="A11">A11</option><option value="A12">A12</option>
-      <option value="A13">A13</option><option value="A14a">A14a</option><option value="A15">A15</option>
-      <option value="A16">A16</option><option value="A17">A17</option><option value="A18">A18</option>
-      <option value="A19">A19</option><option value="A20">A20</option><option value="A21">A21</option>
-      <option value="A22">A22</option>
+      <option value="">請選擇車站</option>
+      <option value="A1">A1 台北車站</option>
+      <option value="A2">A2 三重站</option>
+      <option value="A3">A3 新北產業園區站</option>
+      <option value="A4">A4 新莊副都心站</option>
+      <option value="A5">A5 泰山站</option>
+      <option value="A6">A6 泰山貴和站</option>
+      <option value="A7">A7 體育大學站</option>
+      <option value="A8">A8 長庚醫院站</option>
+      <option value="A9">A9 林口站</option>
+      <option value="A10">A10 山鼻站</option>
+      <option value="A11">A11 坑口站</option>
+      <option value="A12">A12 機場第一航廈站</option>
+      <option value="A13">A13 機場第二航廈站</option>
+      <option value="A14a">A14a 機場旅館站</option>
+      <option value="A15">A15 大園站</option>
+      <option value="A16">A16 橫山站</option>
+      <option value="A17">A17 領航站</option>
+      <option value="A18">A18 高鐵桃園站</option>
+      <option value="A19">A19 桃園體育園區站</option>
+      <option value="A20">A20 興南站</option>
+      <option value="A21">A21 環北站</option>
+      <option value="A22">A22 老街溪站</option>
     </select>
 
-    <div class="row">
-      <div>
-        <label for="startDate">選擇開始日期:</label>
-        <input type="date" id="startDate"/>
-      </div>
-      <div>
-        <label for="endDate">選擇結束日期:</label>
-        <input type="date" id="endDate"/>
-      </div>
-    </div>
+    <label for="picker-start">開始時間 (日期+時刻)</label>
+    <input type="text" id="picker-start" placeholder="點擊選擇開始時間..." readonly>
 
-    <div class="row">
-      <div>
-        <label for="startTime">開始時間:</label>
-        <select id="startTime"></select>
-      </div>
-      <div>
-        <label for="endTime">結束時間:</label>
-        <select id="endTime"></select>
-      </div>
-    </div>
+    <label for="picker-end">結束時間 (日期+時刻)</label>
+    <input type="text" id="picker-end" placeholder="點擊選擇結束時間..." readonly>
 
-    <button id="submit">送出</button>
+    <button id="submit">送出查詢</button>
     <div id="error-message" class="error-message"></div>
   </div>
 
-<script>
-    var liffID = '2006470777-N3VdwgyO'; // 請確認 LIFF ID 是否正確
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
+
+  <script>
+    var liffID = '2006470777-N3VdwgyO'; // 請確認 LIFF ID
     let stationType = '';
-
-    // ===== 工具 =====
-    function toYMD(d){ return d.toISOString().split('T')[0]; }
     
-    // 建立營運循環時間：04:00→23:45→00:00→03:45（每 15 分）
-    function buildOpTimes(){
-      const list = [];
-      function pushRange(hStart, hEnd){
-        for(let h=hStart; h<hEnd; h++){
-          for(let m=0; m<60; m+=15){
-            list.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'));
-          }
-        }
-      }
-      pushRange(4,24); // 04:00~23:45
-      pushRange(0,4);  // 00:00~03:45
-      return list;
-    }
-    const ALL_TIMES = buildOpTimes();
-    
-    // 填入時間選單
-    function fillSelect(sel, arr){
-      sel.innerHTML = '';
-      arr.forEach(t=>{
-        const opt = document.createElement('option');
-        opt.value = t; opt.textContent = t;
-        sel.appendChild(opt);
-      });
-    }
+    // 初始化 Flatpickr 實例變數
+    let startPicker = null;
+    let endPicker = null;
 
-    // ★★★ 修改重點 1：簡化時間選單邏輯，不再強制連動日期 ★★★
-    // 當 StartTime 改變時，只負責刷新 EndTime 選單的順序或選項，但不改日期
-    function refreshEndTimeOptions(){
-      const startSel = document.getElementById('startTime');
-      const endSel   = document.getElementById('endTime');
-      const startVal = startSel.value;
-      
-      // 如果沒選開始時間，就列出所有時間
-      if(!startVal){
-        fillSelect(endSel, ALL_TIMES);
-        return;
-      }
-      
-      // 這裡維持原本邏輯：結束時間選單會自動把「開始時間」之後的選項排在前面
-      // 但使用者仍然可以自由選擇任何時間
-      const idx = ALL_TIMES.indexOf(startVal);
-      if (idx !== -1) {
-          // 產生一個循環列表，讓預設選項比較貼心
-          const reordered = ALL_TIMES.slice(idx+1).concat(ALL_TIMES.slice(0, idx+1));
-          fillSelect(endSel, reordered);
-          endSel.value = reordered[0]; // 預設選下一個 15 分鐘
-      }
+    // ===== 初始化 Flatpickr 日期時間選擇器 =====
+    function initFlatpickr() {
+        const today = new Date();
+        const minDate = "2025-01-01"; // 最早可選日期
+
+        // 通用設定
+        const commonConfig = {
+            enableTime: true,       // 啟用時間選擇
+            dateFormat: "Y-m-d H:i",// 顯示格式
+            time_24hr: true,        // 24小時制
+            minuteIncrement: 15,    // ★★★ 設定為 15 分鐘一跳 (00, 15, 30, 45) ★★★
+            locale: "zh_tw",        // 中文語系
+            disableMobile: "true",  // 強制在手機上也使用 Flatpickr 的介面 (避免原生元件不支援15分間隔)
+            maxDate: today,         // 只能選到今天
+            minDate: minDate
+        };
+
+        // 1. 設定開始時間選擇器
+        startPicker = flatpickr("#picker-start", {
+            ...commonConfig,
+            onChange: function(selectedDates, dateStr, instance) {
+                // 當選擇了開始時間後，自動設定結束時間的最小值
+                // 讓使用者無法選擇比開始時間早的結束時間
+                if (dateStr) {
+                    endPicker.set('minDate', dateStr);
+                }
+            }
+        });
+
+        // 2. 設定結束時間選擇器
+        endPicker = flatpickr("#picker-end", {
+            ...commonConfig
+        });
     }
 
-    // ===== 初始化 =====
-    function initDates(){
-      const today = new Date();
-      const todayStr = toYMD(today); // 取得今天的日期字串 (yyyy-mm-dd)
-      const minStartStr = '2025-01-01'; // 設定系統最早可查詢日期
-
-      const startDateEl = document.getElementById('startDate');
-      const endDateEl   = document.getElementById('endDate');
-
-      // 1. 設定全域限制
-      // 開始與結束日期的最大值都是「今天」(不可選未來)
-      startDateEl.max = todayStr;
-      endDateEl.max   = todayStr;
-      
-      // 設定最早日期
-      startDateEl.min = minStartStr;
-      endDateEl.min   = minStartStr;
-
-      // 2. 預設值設為今天
-      startDateEl.value = todayStr;
-      endDateEl.value   = todayStr;
-
-      // ★★★ 修改重點 2：監聽「開始日期」變更 ★★★
-      startDateEl.addEventListener('change', () => {
-        const newStart = startDateEl.value;
-        
-        // 規則：結束日期 不能早於 開始日期
-        endDateEl.min = newStart; 
-
-        // 如果目前選的結束日期 比 新的開始日期 還要早，就自動推移到新的開始日期
-        if(endDateEl.value < newStart){
-            endDateEl.value = newStart;
-        }
-        // 注意：endDateEl.max 依然維持 todayStr，所以使用者最多只能選到今天
-      });
-    }
-
-    function initTimes(){
-      const startSel = document.getElementById('startTime');
-      const endSel   = document.getElementById('endTime');
-      fillSelect(startSel, ALL_TIMES);
-      fillSelect(endSel, ALL_TIMES);
-
-      startSel.value = '';
-      endSel.value   = '';
-
-      startSel.addEventListener('change', refreshEndTimeOptions);
-      // 移除 autoAdjustEndDate 的監聽，讓使用者自由選擇日期
-    }
-
+    // ===== 按鈕與邏輯 =====
     function initStationButtons(){
       const inBtn = document.getElementById('station-in');
       const outBtn= document.getElementById('station-out');
       const label = document.getElementById('selected-station');
-      inBtn.addEventListener('click', ()=>{ stationType='(進站)'; label.textContent='已選擇: 進站'; inBtn.classList.add('selected'); outBtn.classList.remove('selected'); });
-      outBtn.addEventListener('click', ()=>{ stationType='(出站)'; label.textContent='已選擇: 出站'; outBtn.classList.add('selected'); inBtn.classList.remove('selected'); });
+      
+      inBtn.addEventListener('click', ()=>{ 
+        stationType='(進站)'; 
+        label.textContent='目前狀態：進站'; 
+        inBtn.classList.add('selected'); 
+        outBtn.classList.remove('selected'); 
+      });
+      
+      outBtn.addEventListener('click', ()=>{ 
+        stationType='(出站)'; 
+        label.textContent='目前狀態：出站'; 
+        outBtn.classList.add('selected'); 
+        inBtn.classList.remove('selected'); 
+      });
     }
 
     function initSubmit(){
       document.getElementById('submit').addEventListener('click', ()=>{
-        const startDate = document.getElementById('startDate').value;
-        const startTime = document.getElementById('startTime').value;
-        const endDate   = document.getElementById('endDate').value;
-        const endTime   = document.getElementById('endTime').value;
-        const station   = document.getElementById('station-dropdown').value;
-        const errorDiv  = document.getElementById('error-message');
+        const startVal = document.getElementById('picker-start').value;
+        const endVal   = document.getElementById('picker-end').value;
+        const station  = document.getElementById('station-dropdown').value;
+        const errorDiv = document.getElementById('error-message');
 
         errorDiv.style.display = 'none';
 
-        if(!station || !startDate || !endDate || !startTime || !endTime || !stationType){
-          errorDiv.innerText = '車站與日期/時間/進出站類型不可空白';
+        // 1. 檢查必填
+        if(!station || !startVal || !endVal || !stationType){
+          errorDiv.innerText = '請完整選擇：交易類型、車站、開始與結束時間';
           errorDiv.style.display = 'block';
           return;
         }
 
-        // 實際時間戳比較 (驗證使用者選的範圍是否合法)
-        // 因為日期已經解鎖，這裡的邏輯變得很重要
-        const startDT = new Date(`${startDate}T${startTime}:00`);
-        const endDT   = new Date(`${endDate}T${endTime}:00`);
-
-        if(endDT <= startDT){
-          errorDiv.innerText = '結束時間必須晚於開始時間';
-          errorDiv.style.display = 'block';
-          return;
+        // 2. 檢查時間邏輯 (Flatpickr 格式已經是 YYYY-MM-DD HH:MM，可直接比較字串或轉Date)
+        if (startVal >= endVal) {
+            errorDiv.innerText = '結束時間必須晚於開始時間';
+            errorDiv.style.display = 'block';
+            return;
         }
 
-        const message = `功能：總運量${stationType}\n車站: ${station}\n開始時間: ${startDate} ${startTime}\n結束時間: ${endDate} ${endTime}`;
-        liff.sendMessages([{ type:'text', text: message }])
-          .then(()=>{ console.log('訊息發送成功'); liff.closeWindow(); })
-          .catch(err=>{ console.error('發送訊息時發生錯誤:', err); });
+        // 3. 發送 LIFF 訊息
+        // 格式不需要拆開了，直接使用 startVal 即可 (e.g. "2025-12-09 10:15")
+        const message = `功能：總運量${stationType}\n車站: ${station}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
+        
+        if (liff.isInClient()) {
+            liff.sendMessages([{ type:'text', text: message }])
+              .then(()=>{ liff.closeWindow(); })
+              .catch(err=>{ 
+                  console.error('發送錯誤:', err); 
+                  errorDiv.innerText = '發送失敗，請稍後再試';
+                  errorDiv.style.display = 'block';
+              });
+        } else {
+            // 測試環境 (瀏覽器)
+            alert("測試模式：\n" + message);
+        }
       });
     }
 
     // ===== 啟動 =====
     window.addEventListener('load', function(){
+      // 初始化 Flatpickr
+      initFlatpickr();
+      initStationButtons();
+      initSubmit();
+
+      // 初始化 LIFF
       liff.init({ liffId: liffID }).then(()=>{
-        liff.getProfile().then(p=>console.log('USERID:', p.userId)).catch(()=>{});
-        initDates();
-        initTimes();
-        initStationButtons();
-        initSubmit();
-      }).catch(err=>console.error('LIFF 初始化失敗:', err));
+        if(!liff.isLoggedIn() && liff.isInClient()){
+             // 視需求決定是否要強制登入，通常 LIFF 在 LINE 內開啟已自動登入
+        }
+      }).catch(err=>console.error('LIFF Error:', err));
     });
   </script>
 </body>
 </html>
-
-
-
-
