@@ -17,10 +17,10 @@
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
       margin: 0; 
-      padding: 20px 20px 40px 20px; /* 底部留白多一點 */
-      background: #f4f7f6; /* 稍微帶點灰的背景，護眼 */
+      padding: 20px 20px 40px 20px; 
+      background: #f4f7f6; 
       color: #333;
-      -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
+      -webkit-tap-highlight-color: transparent; 
     }
 
     h1 { 
@@ -49,7 +49,7 @@
     }
 
     /* =========================================
-       2. 按鈕與輸入框優化 (好點擊)
+       2. 按鈕與輸入框優化
        ========================================= */
     .station-selection { 
       display: flex; 
@@ -59,7 +59,7 @@
     
     .station-btn { 
       flex: 1; 
-      padding: 14px; /* 加大點擊範圍 */
+      padding: 14px; 
       border: 1px solid #eee; 
       background: #f8f9fa; 
       color: #888;
@@ -89,9 +89,9 @@
     input[type="text"], 
     select { 
       width: 100%; 
-      padding: 14px 12px; /* 高度加高 */
+      padding: 14px 12px; 
       margin-bottom: 25px; 
-      font-size: 16px; /* 防止 iOS 自動放大 */
+      font-size: 16px; 
       border: 2px solid #f0f0f0; 
       border-radius: 10px; 
       background: #fff; 
@@ -100,14 +100,13 @@
       color: #333;
     }
 
-    /* 輸入框被選中時的狀態 */
     input:focus, select:focus {
       outline: none;
       border-color: #e0c3f8;
       background: #fff;
     }
 
-    /* 讓輸入框看起來像按鈕 (因為是 readonly) */
+    /* 模擬 readonly 輸入框為可點擊狀態 */
     input[readonly] {
         background-color: #fff;
         cursor: pointer;
@@ -147,37 +146,30 @@
     }
 
     /* =========================================
-       3. ★★★ Flatpickr 手機版魔改樣式 ★★★
-       這段 CSS 會把原本小小的日曆改成全螢幕置中彈窗
+       3. Flatpickr 手機版魔改樣式 (彈窗模式)
        ========================================= */
-    
-    /* 1. 將日曆強制置中，並加上陰影模擬彈窗 */
     .flatpickr-calendar {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
-        width: 320px !important; /* 固定寬度 */
+        width: 320px !important;
         max-width: 90vw !important;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important; /* 強烈的陰影 */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important;
         border-radius: 15px !important;
-        z-index: 99999 !important; /* 確保在最上層 */
+        z-index: 99999 !important;
     }
 
-    /* 2. 製作全螢幕黑色遮罩背景 */
+    /* 背景遮罩 */
     .flatpickr-calendar.open::before {
         content: '';
         position: fixed;
-        top: -200%; 
-        left: -200%; 
-        width: 500%; 
-        height: 500%;
-        background: rgba(0,0,0,0.5); /* 半透明黑底 */
+        top: -200%; left: -200%; width: 500%; height: 500%;
+        background: rgba(0,0,0,0.5);
         z-index: -1;
-        pointer-events: none; /* 讓點擊能穿透到日曆上 */
+        pointer-events: none;
     }
 
-    /* 3. 放大日期格子，好點擊 */
     .flatpickr-day {
         height: 40px !important;
         line-height: 40px !important;
@@ -192,36 +184,34 @@
         font-weight: bold !important;
     }
 
-    /* 4. ★★★ 放大時間選擇區塊 (最重要) ★★★ */
+    /* 時間選擇區塊加大 */
     .flatpickr-time {
-        height: 70px !important; /* 加高時間區塊 */
+        height: 70px !important;
         line-height: 70px !important;
         max-height: 70px !important;
         border-top: 1px solid #eee !important;
     }
 
     .flatpickr-time .numInputWrapper {
-        height: 50px !important; /* 數字框加高 */
+        height: 50px !important;
         flex: 1;
     }
 
     .flatpickr-time input.flatpickr-hour, 
     .flatpickr-time input.flatpickr-minute {
-        font-size: 24px !important; /* 字體加大 */
+        font-size: 24px !important;
         font-weight: bold !important;
         height: 50px !important;
     }
 
-    /* 放大上下箭頭 */
     .flatpickr-time .arrowUp, 
     .flatpickr-time .arrowDown {
         height: 20px !important; 
         padding: 5px !important;
-        opacity: 1 !important; /* 永遠顯示箭頭 */
-        background: #f0f0f0; /* 給箭頭一點背景色，比較好按 */
+        opacity: 1 !important;
+        background: #f0f0f0; 
     }
 
-    /* 隱藏原本的小箭頭裝飾，改用顏色區分 */
     .flatpickr-time .arrowUp::after { border-bottom-color: #555 !important; }
     .flatpickr-time .arrowDown::after { border-top-color: #555 !important; }
 
@@ -304,12 +294,12 @@
     }
 
     function initFlatpickr() {
-        const today = new Date();
         const minDate = "2025-01-01"; 
         
         const snappedDate = getSnappedDate();
         const initialTimeStr = formatDateToString(snappedDate);
 
+        // 強制填入開始時間
         document.getElementById('picker-start').value = initialTimeStr;
         
         const commonConfig = {
@@ -318,25 +308,28 @@
             time_24hr: true,
             minuteIncrement: 15,
             locale: "zh_tw",
-            disableMobile: "true", // 必須保留 true 才能使用我們自訂的 CSS 彈窗
-            maxDate: today,
+            disableMobile: "true", 
+            // maxDate: today, // ★★★ 移除這行，現在可以選擇未來時間了 ★★★
             minDate: minDate
         };
 
+        // 初始化開始時間
         startPicker = flatpickr("#picker-start", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr, instance) {
+                // 當選擇開始時間後，限制結束時間不能早於它
                 if (dateStr) {
                     endPicker.set('minDate', dateStr);
                 }
             }
         });
 
+        // 初始化結束時間
         endPicker = flatpickr("#picker-end", {
             ...commonConfig,
             defaultHour: snappedDate.getHours(),
             defaultMinute: snappedDate.getMinutes(),
-            minDate: initialTimeStr
+            minDate: initialTimeStr // 初始狀態下，不能選比預設開始時間還早的
         });
     }
 
