@@ -11,125 +11,220 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
 
   <style>
-    /* 全局設定 */
+    /* =========================================
+       1. 基礎版面設定
+       ========================================= */
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
       margin: 0; 
-      padding: 20px; 
-      background: #ffffff; 
+      padding: 20px 20px 40px 20px; /* 底部留白多一點 */
+      background: #f4f7f6; /* 稍微帶點灰的背景，護眼 */
       color: #333;
+      -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
     }
 
     h1 { 
-      font-size: 22px; 
+      font-size: 20px; 
       text-align: center; 
-      margin-bottom: 25px; 
+      margin-bottom: 20px; 
       color: #2c3e50;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .form-group { 
-      max-width: 500px; 
+      max-width: 100%; 
       margin: 0 auto; 
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
 
     label { 
       display: block; 
       margin-bottom: 8px; 
-      font-size: 15px; 
-      color: #555; 
-      font-weight: 500;
+      font-size: 14px; 
+      color: #666; 
+      font-weight: 600;
     }
 
-    /* 按鈕樣式 */
+    /* =========================================
+       2. 按鈕與輸入框優化 (好點擊)
+       ========================================= */
     .station-selection { 
       display: flex; 
-      gap: 10px; 
+      gap: 12px; 
       margin-bottom: 5px; 
     }
     
     .station-btn { 
       flex: 1; 
-      padding: 12px;
-      border: 1px solid #e0e0e0; 
+      padding: 14px; /* 加大點擊範圍 */
+      border: 1px solid #eee; 
       background: #f8f9fa; 
-      color: #666;
-      border-radius: 8px; 
+      color: #888;
+      border-radius: 10px; 
       font-size: 16px; 
+      font-weight: 500;
       cursor: pointer; 
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
     
     .station-btn.selected { 
       background: #e0c3f8; 
       border-color: #d1a3f0;
-      color: #2c0b4a;
+      color: #4a148c;
       font-weight: bold;
-      box-shadow: 0 2px 5px rgba(224, 195, 248, 0.4);
+      box-shadow: 0 4px 6px rgba(224, 195, 248, 0.3);
     }
 
     #selected-station {
-      font-size: 14px;
-      color: #888;
-      margin-bottom: 20px;
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 25px;
       text-align: right;
-      height: 20px; 
+      height: 18px; 
     }
 
-    /* 輸入框樣式 */
     input[type="text"], 
     select { 
       width: 100%; 
-      padding: 12px; 
-      margin-bottom: 20px; 
-      font-size: 16px; 
-      border: 1px solid #ddd; 
-      border-radius: 8px; 
+      padding: 14px 12px; /* 高度加高 */
+      margin-bottom: 25px; 
+      font-size: 16px; /* 防止 iOS 自動放大 */
+      border: 2px solid #f0f0f0; 
+      border-radius: 10px; 
       background: #fff; 
       box-sizing: border-box; 
       -webkit-appearance: none; 
+      color: #333;
     }
 
+    /* 輸入框被選中時的狀態 */
     input:focus, select:focus {
       outline: none;
       border-color: #e0c3f8;
-      box-shadow: 0 0 0 3px rgba(224, 195, 248, 0.2);
+      background: #fff;
+    }
+
+    /* 讓輸入框看起來像按鈕 (因為是 readonly) */
+    input[readonly] {
+        background-color: #fff;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ccc' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
     }
 
     #submit { 
       width: 100%; 
-      padding: 15px; 
+      padding: 16px; 
       background: #2c3e50; 
       color: #fff; 
       border: none; 
-      border-radius: 8px; 
+      border-radius: 12px; 
       font-size: 18px; 
       font-weight: bold;
       cursor: pointer; 
       margin-top: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: background 0.2s;
+      box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+      transition: transform 0.1s;
     }
     
     #submit:active { 
-      background: #1a252f; 
-      transform: translateY(1px);
+      transform: scale(0.98);
     }
 
     .error-message { 
       color: #e74c3c; 
-      margin-top: 15px; 
+      margin-top: 20px; 
       text-align: center; 
       font-size: 14px;
-      padding: 10px;
+      padding: 12px;
       background: #fdeaea;
-      border-radius: 5px;
+      border-radius: 8px;
       display: none; 
     }
+
+    /* =========================================
+       3. ★★★ Flatpickr 手機版魔改樣式 ★★★
+       這段 CSS 會把原本小小的日曆改成全螢幕置中彈窗
+       ========================================= */
     
+    /* 1. 將日曆強制置中，並加上陰影模擬彈窗 */
     .flatpickr-calendar {
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 320px !important; /* 固定寬度 */
+        max-width: 90vw !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important; /* 強烈的陰影 */
+        border-radius: 15px !important;
+        z-index: 99999 !important; /* 確保在最上層 */
     }
+
+    /* 2. 製作全螢幕黑色遮罩背景 */
+    .flatpickr-calendar.open::before {
+        content: '';
+        position: fixed;
+        top: -200%; 
+        left: -200%; 
+        width: 500%; 
+        height: 500%;
+        background: rgba(0,0,0,0.5); /* 半透明黑底 */
+        z-index: -1;
+        pointer-events: none; /* 讓點擊能穿透到日曆上 */
+    }
+
+    /* 3. 放大日期格子，好點擊 */
+    .flatpickr-day {
+        height: 40px !important;
+        line-height: 40px !important;
+        margin: 2px !important; 
+        font-size: 16px !important;
+    }
+    
+    .flatpickr-day.selected {
+        background: #e0c3f8 !important;
+        color: #2c0b4a !important;
+        border-color: #e0c3f8 !important;
+        font-weight: bold !important;
+    }
+
+    /* 4. ★★★ 放大時間選擇區塊 (最重要) ★★★ */
+    .flatpickr-time {
+        height: 70px !important; /* 加高時間區塊 */
+        line-height: 70px !important;
+        max-height: 70px !important;
+        border-top: 1px solid #eee !important;
+    }
+
+    .flatpickr-time .numInputWrapper {
+        height: 50px !important; /* 數字框加高 */
+        flex: 1;
+    }
+
+    .flatpickr-time input.flatpickr-hour, 
+    .flatpickr-time input.flatpickr-minute {
+        font-size: 24px !important; /* 字體加大 */
+        font-weight: bold !important;
+        height: 50px !important;
+    }
+
+    /* 放大上下箭頭 */
+    .flatpickr-time .arrowUp, 
+    .flatpickr-time .arrowDown {
+        height: 20px !important; 
+        padding: 5px !important;
+        opacity: 1 !important; /* 永遠顯示箭頭 */
+        background: #f0f0f0; /* 給箭頭一點背景色，比較好按 */
+    }
+
+    /* 隱藏原本的小箭頭裝飾，改用顏色區分 */
+    .flatpickr-time .arrowUp::after { border-bottom-color: #555 !important; }
+    .flatpickr-time .arrowDown::after { border-top-color: #555 !important; }
+
   </style>
 </head>
 <body>
@@ -190,7 +285,7 @@
     let startPicker = null;
     let endPicker = null;
 
-    // 1. 取得「校正後的時間物件」 (回傳 Date Object)
+    // 1. 取得「校正後的時間物件」
     function getSnappedDate() {
         const date = new Date();
         const msPer15Min = 1000 * 60 * 15;
@@ -212,44 +307,35 @@
         const today = new Date();
         const minDate = "2025-01-01"; 
         
-        // 取得校正後的現在時間物件
         const snappedDate = getSnappedDate();
-        // 轉成字串
         const initialTimeStr = formatDateToString(snappedDate);
 
-        // ★★★ 重點修改：只填入「開始時間」，結束時間保持空白 ★★★
         document.getElementById('picker-start').value = initialTimeStr;
-        // document.getElementById('picker-end').value = ''; // 保持空白
-
+        
         const commonConfig = {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
-            minuteIncrement: 15, // 15分鐘一跳
+            minuteIncrement: 15,
             locale: "zh_tw",
-            disableMobile: "true",
+            disableMobile: "true", // 必須保留 true 才能使用我們自訂的 CSS 彈窗
             maxDate: today,
             minDate: minDate
         };
 
-        // 初始化開始時間
         startPicker = flatpickr("#picker-start", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr, instance) {
-                // 當開始時間改變時，更新結束時間的 minDate
                 if (dateStr) {
                     endPicker.set('minDate', dateStr);
                 }
             }
         });
 
-        // 初始化結束時間
         endPicker = flatpickr("#picker-end", {
             ...commonConfig,
-            // ★★★ 即使是空白，預設開啟的面板時間也要對齊 snappedDate (確保分鐘是 00, 15, 30...)
             defaultHour: snappedDate.getHours(),
             defaultMinute: snappedDate.getMinutes(),
-            // ★★★ 初始狀態下，結束時間的最小值就是現在預設的開始時間
             minDate: initialTimeStr
         });
     }
@@ -318,6 +404,7 @@
       
       liff.init({ liffId: liffID }).then(()=>{
         if(!liff.isLoggedIn() && liff.isInClient()){
+           // login
         }
       }).catch(err=>console.error('LIFF Error:', err));
     });
