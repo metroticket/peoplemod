@@ -38,141 +38,131 @@
     .error-message { color: red; margin-top: 15px; text-align: center; display: none; }
 
     /* =========================================
-       2. ★★★ 灰黑極簡風樣式魔改 (覆寫藍色) ★★★
+       2. 灰黑極簡風樣式魔改
        ========================================= */
     
-    /* (A) 彈窗本體：淺灰底色 */
     .flatpickr-calendar {
-        background: #f2f2f2 !important; /* 統一淺灰底 */
+        background: #f2f2f2 !important; 
         position: fixed !important;
         top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important;
         width: 320px !important;
-        max-height: 85vh !important; /* 防溢出 */
+        max-height: 85vh !important;
         overflow-y: auto !important;
         z-index: 99999 !important;
-        box-shadow: 0 0 0 100vh rgba(0,0,0,0.5) !important; /* 遮罩 */
+        box-shadow: 0 0 0 100vh rgba(0,0,0,0.5) !important;
         border-radius: 12px !important;
         border: 1px solid #ccc !important;
     }
     .flatpickr-calendar::-webkit-scrollbar { width: 0; } 
 
-    /* (B) 頭部 (月份/年份)：去除藍色，改淺灰底 + 黑字 */
+    /* 頭部 */
     .flatpickr-months {
         background: #f2f2f2 !important; 
         border-bottom: 1px solid #e0e0e0;
         padding-top: 10px !important;
         padding-bottom: 5px !important;
     }
-    .flatpickr-month {
-        color: #000 !important; 
-        fill: #000 !important;
-    }
-    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-month, .flatpickr-current-month .flatpickr-monthDropdown-months,
     .flatpickr-current-month input.cur-year {
         color: #000 !important; 
-        font-weight: bold !important;
-    }
-    .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
-        background: transparent !important;
-    }
-    
-    /* 左右箭頭 svg */
-    .flatpickr-prev-month svg, .flatpickr-next-month svg {
         fill: #000 !important;
-    }
-    .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg {
-        fill: #555 !important;
-    }
-
-    /* (C) 星期列：去除藍色 */
-    .flatpickr-weekdays {
-        background: #f2f2f2 !important;
-    }
-    span.flatpickr-weekday {
-        color: #000 !important; 
         font-weight: bold !important;
     }
+    .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: #000 !important; }
 
-    /* (D) 日期格子 */
+    /* 星期列 */
+    .flatpickr-weekdays { background: #f2f2f2 !important; }
+    span.flatpickr-weekday { color: #000 !important; font-weight: bold !important; }
+
+    /* 日期格子 */
     .flatpickr-day {
         color: #333 !important;
         height: 36px !important; line-height: 36px !important; margin: 1px !important;
         border-radius: 6px !important;
     }
-    /* 選中狀態：改成深灰色，不要藍色 */
     .flatpickr-day.selected {
         background: #444 !important;
         border-color: #444 !important;
         color: #fff !important;
     }
-    /* 當天日期 */
-    .flatpickr-day.today {
-        border-color: #999 !important;
-    }
-    .flatpickr-day:hover {
-        background: #e0e0e0 !important;
-    }
+    .flatpickr-day.today { border-color: #999 !important; }
 
-    /* (E) ★ 時間選擇區塊：淺灰底，黑箭頭 ★ */
+    /* =========================================
+       3. ★★★ 超大箭頭方塊優化區 ★★★
+       ========================================= */
     .flatpickr-time {
-        background: #f2f2f2 !important; /* 跟上面一樣的淺灰 */
+        background: #f2f2f2 !important;
         border-top: 1px solid #ccc !important;
         height: auto !important;
-        max-height: 80px !important;
-        padding: 10px 0 !important;
+        max-height: 90px !important; /* 稍微加高 */
+        padding: 12px 0 !important;
         display: flex !important;
     }
 
-    /* 數字輸入框：白底黑字 */
+    /* 數字輸入框：左邊圓角，右邊直角(接箭頭) */
     .flatpickr-time input.flatpickr-hour, 
     .flatpickr-time input.flatpickr-minute {
-        font-size: 26px !important;
-        height: 50px !important;
+        font-size: 28px !important; /* 字體加大 */
+        height: 56px !important;    /* 高度加大 */
         font-weight: bold !important;
         color: #000 !important;
         background: #fff !important; 
         border: 1px solid #ccc !important;
-        border-radius: 8px !important;
+        border-right: none !important; /* 去掉右邊框，跟箭頭連在一起 */
+        border-radius: 8px 0 0 8px !important; /* 只有左邊有圓角 */
         margin: 0 !important; 
     }
 
-    /* 箭頭容器 (Wrapper) */
+    /* 箭頭容器 */
     .flatpickr-time .numInputWrapper {
-        height: 50px !important;
+        height: 56px !important; /* 配合輸入框高度 */
         flex: 1;
-        margin: 0 8px; /* 增加左右間距 */
+        margin: 0 10px; /* 增加左右間距 */
+        display: flex;
     }
 
-    /* ★ 箭頭按鈕：透明背景，只留黑色箭頭 ★ */
+    /* ★ 箭頭按鈕：實體化方塊 ★ */
     .flatpickr-time .numInputWrapper span.arrowUp,
     .flatpickr-time .numInputWrapper span.arrowDown {
-        opacity: 1 !important; /* 永遠顯示 */
-        width: 30px !important; 
+        opacity: 1 !important;
+        width: 45px !important; /* ★ 寬度加大到 45px，非常好按 */
         padding: 0 !important;
-        background: transparent !important; /* ★ 透明背景 (底色就是淺灰) */
-        border: none !important; 
+        background: #e0e0e0 !important; /* ★ 淺灰實體背景，像個按鈕 */
+        border: 1px solid #ccc !important;
         z-index: 10 !important;
-        right: 0 !important; /* 靠右對齊 */
+        right: 0 !important;
+        box-sizing: border-box;
+    }
+    
+    /* 上箭頭：右上圓角 */
+    .flatpickr-time .numInputWrapper span.arrowUp {
+        border-radius: 0 8px 0 0 !important;
+        border-bottom: 1px solid #fff !important; /* 中間加條白線區隔 */
+    }
+    /* 下箭頭：右下圓角 */
+    .flatpickr-time .numInputWrapper span.arrowDown {
+        border-radius: 0 0 8px 0 !important;
     }
 
-    /* ★ 箭頭圖案：純黑色 ★ */
+    /* ★ 箭頭圖案：加大 ★ */
     .flatpickr-time .numInputWrapper span.arrowUp:after {
-        border-bottom-color: #000 !important; /* 黑色 */
-        border-width: 6px !important;
-        top: 35% !important;
-        left: 30% !important; /* 微調置中 */
+        border-bottom-color: #000 !important;
+        border-width: 8px !important; /* ★ 加大三角形 */
+        top: 40% !important;
+        left: 35% !important; /* 修正置中 */
     }
     
     .flatpickr-time .numInputWrapper span.arrowDown:after {
-        border-top-color: #000 !important; /* 黑色 */
-        border-width: 6px !important;
-        top: 45% !important;
-        left: 30% !important;
+        border-top-color: #000 !important;
+        border-width: 8px !important; /* ★ 加大三角形 */
+        top: 40% !important;
+        left: 35% !important;
     }
 
-    /* 去除 hover 變色 */
-    .flatpickr-time .numInputWrapper:hover {
-        background: transparent !important;
+    /* 按下去的效果 */
+    .flatpickr-time .numInputWrapper span.arrowUp:active,
+    .flatpickr-time .numInputWrapper span.arrowDown:active {
+        background: #d0d0d0 !important; /* 深一點的灰 */
     }
 
   </style>
