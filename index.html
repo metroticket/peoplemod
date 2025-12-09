@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
 
   <style>
-    /* 全局設定：簡潔白底風格 */
+    /* 全局設定 */
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
       margin: 0; 
@@ -28,7 +28,6 @@
       font-weight: 600;
     }
 
-    /* 表單容器 */
     .form-group { 
       max-width: 500px; 
       margin: 0 auto; 
@@ -42,7 +41,7 @@
       font-weight: 500;
     }
 
-    /* 進出站按鈕群組 */
+    /* 按鈕樣式 */
     .station-selection { 
       display: flex; 
       gap: 10px; 
@@ -74,11 +73,11 @@
       color: #888;
       margin-bottom: 20px;
       text-align: right;
-      height: 20px; /* 固定高度避免跳動 */
+      height: 20px; 
     }
 
-    /* 輸入框樣式優化 */
-    input[type="text"], /* Flatpickr 渲染後是 text */
+    /* 輸入框樣式 */
+    input[type="text"], 
     select { 
       width: 100%; 
       padding: 12px; 
@@ -87,8 +86,8 @@
       border: 1px solid #ddd; 
       border-radius: 8px; 
       background: #fff; 
-      box-sizing: border-box; /* 確保 padding 不會撐開寬度 */
-      -webkit-appearance: none; /* 移除 iOS 預設樣式 */
+      box-sizing: border-box; 
+      -webkit-appearance: none; 
     }
 
     input:focus, select:focus {
@@ -97,7 +96,6 @@
       box-shadow: 0 0 0 3px rgba(224, 195, 248, 0.2);
     }
 
-    /* 送出按鈕 */
     #submit { 
       width: 100%; 
       padding: 15px; 
@@ -118,7 +116,6 @@
       transform: translateY(1px);
     }
 
-    /* 錯誤訊息 */
     .error-message { 
       color: #e74c3c; 
       margin-top: 15px; 
@@ -129,8 +126,8 @@
       border-radius: 5px;
       display: none; 
     }
-
-    /* Flatpickr 的一些微調 (讓手機上更好點) */
+    
+    /* 修正 Flatpickr 手機顯示 */
     .flatpickr-calendar {
       box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
     }
@@ -189,63 +186,72 @@
   <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
 
   <script>
-    var liffID = '2006470777-N3VdwgyO'; // 請確認 LIFF ID
+    var liffID = '2006470777-N3VdwgyO'; 
     let stationType = '';
-    
-    // 初始化 Flatpickr 實例變數
     let startPicker = null;
     let endPicker = null;
 
-    // ===== 工具：取得最近的 15 分鐘整點時間 =====
-    // 這個函式現在正確地放在最外層了
-    function getRoundedDate(minutesInterval) {
+    // ★★★ 核心邏輯：計算並格式化最近的15分鐘時間字串 ★★★
+    function getSnappedTimeString() {
         const date = new Date();
-        const ms = 1000 * 60 * minutesInterval; // 轉換成毫秒
-        // 使用 Math.round 四捨五入到最近的 interval
-        const roundedDate = new Date(Math.round(date.getTime() / ms) * ms);
-        return roundedDate;
+        const msPer15Min = 1000 * 60 * 15;
+        
+        // 四捨五入到最近的 15 分鐘
+        const roundedDate = new Date(Math.round(date.getTime() / msPer15Min) * msPer15Min);
+        
+        // 手動格式化成 "YYYY-MM-DD HH:MM" 字串
+        // 這樣可以直接餵給 input 的 value，強迫 Flatpickr 服從
+        const Y = roundedDate.getFullYear();
+        const M = String(roundedDate.getMonth() + 1).padStart(2, '0');
+        const D = String(roundedDate.getDate()).padStart(2, '0');
+        const h = String(roundedDate.getHours()).padStart(2, '0');
+        const m = String(roundedDate.getMinutes()).padStart(2, '0');
+        
+        return `${Y}-${M}-${D} ${h}:${m}`;
     }
 
-    // ===== 初始化 Flatpickr 日期時間選擇器 =====
     function initFlatpickr() {
         const today = new Date();
         const minDate = "2025-01-01"; 
         
-        // 取得校正後的現在時間 (例如 10:22 -> 10:30)
-        const snappedTime = getRoundedDate(15);
+        // 1. 先取得一個標準化的初始時間字串 (例如 "2025-12-09 10:30")
+        const initialTimeStr = getSnappedTimeString();
 
-        // 通用設定
+        // 2. ★★★ 強制先把這個值填入輸入框，這樣 Flatpickr 就沒得選擇，只能從這個時間開始 ★★★
+        document.getElementById('picker-start').value = initialTimeStr;
+        document.getElementById('picker-end').value   = initialTimeStr;
+
         const commonConfig = {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
-            minuteIncrement: 15,    
+            minuteIncrement: 15, // 設定15分鐘一跳
             locale: "zh_tw",
             disableMobile: "true",
             maxDate: today,
             minDate: minDate,
-            defaultDate: snappedTime, // 設定預設時間為校正後的時間
-            defaultHour: snappedTime.getHours(), 
-            defaultMinute: snappedTime.getMinutes()
+            // 這裡不需要再設 defaultDate，因為我們已經手動填入 input value 了
+            onChange: function(selectedDates, dateStr, instance) {
+               // 當值改變時的邏輯...
+            }
         };
 
-        // 1. 設定開始時間
+        // 初始化
         startPicker = flatpickr("#picker-start", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr, instance) {
+                // 連動結束時間的最小值
                 if (dateStr) {
                     endPicker.set('minDate', dateStr);
                 }
             }
         });
 
-        // 2. 設定結束時間
         endPicker = flatpickr("#picker-end", {
             ...commonConfig
         });
     }
 
-    // ===== 按鈕與邏輯 =====
     function initStationButtons(){
       const inBtn = document.getElementById('station-in');
       const outBtn= document.getElementById('station-out');
@@ -275,21 +281,18 @@
 
         errorDiv.style.display = 'none';
 
-        // 1. 檢查必填
         if(!station || !startVal || !endVal || !stationType){
           errorDiv.innerText = '請完整選擇：交易類型、車站、開始與結束時間';
           errorDiv.style.display = 'block';
           return;
         }
 
-        // 2. 檢查時間邏輯
         if (startVal >= endVal) {
             errorDiv.innerText = '結束時間必須晚於開始時間';
             errorDiv.style.display = 'block';
             return;
         }
 
-        // 3. 發送 LIFF 訊息
         const message = `功能：總運量${stationType}\n車站: ${station}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
         
         if (liff.isInClient()) {
@@ -301,23 +304,19 @@
                   errorDiv.style.display = 'block';
               });
         } else {
-            // 測試環境 (瀏覽器)
             alert("測試模式：\n" + message);
         }
       });
     }
 
-    // ===== 啟動 =====
     window.addEventListener('load', function(){
-      // 初始化 Flatpickr
       initFlatpickr();
       initStationButtons();
       initSubmit();
-
-      // 初始化 LIFF
+      
       liff.init({ liffId: liffID }).then(()=>{
         if(!liff.isLoggedIn() && liff.isInClient()){
-             // 視需求決定是否要強制登入
+           // login logic if needed
         }
       }).catch(err=>console.error('LIFF Error:', err));
     });
