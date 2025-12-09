@@ -8,212 +8,269 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+  
+  <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
 
   <style>
     /* =========================================
-       1. 基礎版面設定
+       1. 全局質感設定
        ========================================= */
+    :root {
+      --primary-color: #3b82f6; /* 現代藍 */
+      --primary-dark: #2563eb;
+      --bg-color: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-sub: #6b7280;
+      --radius: 16px;
+    }
+
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
       margin: 0; 
-      padding: 20px 20px 40px 20px; 
-      background: #f4f7f6; 
-      color: #333;
+      padding: 30px 20px; 
+      background: var(--bg-color); 
+      color: var(--text-main);
       -webkit-tap-highlight-color: transparent; 
     }
 
-    h1 { 
-      font-size: 20px; 
-      text-align: center; 
-      margin-bottom: 20px; 
-      color: #2c3e50;
-      font-weight: 700;
-    }
-
+    /* 卡片式容器 */
     .form-group { 
       max-width: 100%; 
       margin: 0 auto; 
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 24px; /* 更大的圓角 */
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    }
+
+    h1 { 
+      font-size: 22px; 
+      text-align: center; 
+      margin-bottom: 30px; 
+      color: #111827;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
 
     label { 
       display: block; 
-      margin-bottom: 8px; 
+      margin-bottom: 10px; 
       font-size: 14px; 
-      color: #666; 
+      color: var(--text-sub); 
       font-weight: 600;
+      margin-left: 4px;
     }
 
     /* =========================================
-       2. 按鈕與輸入框優化
+       2. 按鈕與輸入框 (現代化)
        ========================================= */
     .station-selection { 
       display: flex; 
-      gap: 12px; 
-      margin-bottom: 5px; 
+      gap: 15px; 
+      margin-bottom: 10px; 
     }
     
     .station-btn { 
       flex: 1; 
-      padding: 14px; 
-      border: 1px solid #eee; 
-      background: #f8f9fa; 
-      color: #888;
-      border-radius: 10px; 
+      padding: 16px; 
+      border: 2px solid transparent; 
+      background: #f3f4f6; 
+      color: #9ca3af;
+      border-radius: var(--radius); 
       font-size: 16px; 
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer; 
-      transition: all 0.2s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .station-btn.selected { 
-      background: #e0c3f8; 
-      border-color: #d1a3f0;
-      color: #4a148c;
-      font-weight: bold;
-      box-shadow: 0 4px 6px rgba(224, 195, 248, 0.3);
+      background: #eff6ff; 
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
     }
 
     #selected-station {
       font-size: 13px;
-      color: #999;
+      color: var(--primary-color);
       margin-bottom: 25px;
       text-align: right;
-      height: 18px; 
+      height: 20px; 
+      font-weight: 500;
     }
 
+    /* 輸入框美化 */
     input[type="text"], 
     select { 
       width: 100%; 
-      padding: 14px 12px; 
+      padding: 16px; 
       margin-bottom: 25px; 
       font-size: 16px; 
-      border: 2px solid #f0f0f0; 
-      border-radius: 10px; 
-      background: #fff; 
+      border: 1px solid #e5e7eb; 
+      border-radius: var(--radius); 
+      background: #f9fafb; 
+      color: #111827;
       box-sizing: border-box; 
       -webkit-appearance: none; 
-      color: #333;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: #e0c3f8;
+      border-color: var(--primary-color);
       background: #fff;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
     }
 
-    /* 模擬 readonly 輸入框為可點擊狀態 */
+    /* 加上小圖示 */
     input[readonly] {
-        background-color: #fff;
         cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ccc' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' /%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 15px center;
+        background-size: 20px;
     }
 
+    select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 16px;
+    }
+
+    /* 送出按鈕 */
     #submit { 
       width: 100%; 
-      padding: 16px; 
-      background: #2c3e50; 
+      padding: 18px; 
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
       color: #fff; 
       border: none; 
-      border-radius: 12px; 
+      border-radius: var(--radius); 
       font-size: 18px; 
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer; 
-      margin-top: 10px;
-      box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
-      transition: transform 0.1s;
+      margin-top: 15px;
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+      transition: transform 0.1s, box-shadow 0.1s;
     }
     
     #submit:active { 
       transform: scale(0.98);
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
 
     .error-message { 
-      color: #e74c3c; 
+      color: #ef4444; 
       margin-top: 20px; 
       text-align: center; 
       font-size: 14px;
       padding: 12px;
-      background: #fdeaea;
-      border-radius: 8px;
+      background: #fef2f2;
+      border-radius: 12px;
       display: none; 
+      border: 1px solid #fee2e2;
     }
 
     /* =========================================
-       3. Flatpickr 手機版魔改樣式 (彈窗模式)
+       3. ★★★ Flatpickr 樣式重塑 (Modern UI) ★★★
        ========================================= */
+    
+    /* 彈窗本體：圓角更大，陰影更柔和 */
     .flatpickr-calendar {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
         width: 320px !important;
-        max-width: 90vw !important;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important;
-        border-radius: 15px !important;
+        border-radius: 20px !important;
+        border: none !important;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
+        background: #fff !important;
         z-index: 99999 !important;
+        padding-bottom: 10px !important;
     }
 
-    /* 背景遮罩 */
+    /* 毛玻璃背景遮罩 */
     .flatpickr-calendar.open::before {
         content: '';
         position: fixed;
         top: -200%; left: -200%; width: 500%; height: 500%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.3); /* 降低透明度 */
+        backdrop-filter: blur(6px); /* ★★★ 模糊特效 ★★★ */
         z-index: -1;
         pointer-events: none;
     }
 
+    /* 頂部月份欄 */
+    .flatpickr-months {
+        background: transparent !important;
+        padding-top: 15px !important;
+        margin-bottom: 10px !important;
+    }
+    .flatpickr-months .flatpickr-month {
+        color: #1f2937 !important;
+        fill: #1f2937 !important;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+        font-weight: 700 !important;
+    }
+
+    /* 星期標題 */
+    .flatpickr-weekdays {
+        background: transparent !important;
+    }
+    span.flatpickr-weekday {
+        color: #9ca3af !important;
+        font-weight: 600 !important;
+    }
+
+    /* 日期圓圈 */
     .flatpickr-day {
-        height: 40px !important;
-        line-height: 40px !important;
-        margin: 2px !important; 
-        font-size: 16px !important;
+        border-radius: 12px !important; /* 方形圓角，比較像 iOS */
+        margin: 2px !important;
+        border: none !important;
+        color: #374151 !important;
+        font-weight: 500 !important;
     }
     
-    .flatpickr-day.selected {
-        background: #e0c3f8 !important;
-        color: #2c0b4a !important;
-        border-color: #e0c3f8 !important;
-        font-weight: bold !important;
+    .flatpickr-day.selected, 
+    .flatpickr-day.startRange, 
+    .flatpickr-day.endRange {
+        background: var(--primary-color) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4) !important;
+    }
+    
+    .flatpickr-day.today {
+        border: 2px solid var(--primary-color) !important;
     }
 
-    /* 時間選擇區塊加大 */
+    /* 時間區域：更現代的設計 */
     .flatpickr-time {
-        height: 70px !important;
-        line-height: 70px !important;
-        max-height: 70px !important;
-        border-top: 1px solid #eee !important;
-    }
-
-    .flatpickr-time .numInputWrapper {
-        height: 50px !important;
-        flex: 1;
+        border-top: 1px solid #f3f4f6 !important;
+        padding-top: 15px !important;
+        padding-bottom: 10px !important;
+        height: auto !important;
     }
 
     .flatpickr-time input.flatpickr-hour, 
     .flatpickr-time input.flatpickr-minute {
-        font-size: 24px !important;
-        font-weight: bold !important;
-        height: 50px !important;
+        font-weight: 700 !important;
+        font-size: 26px !important;
+        color: #1f2937 !important;
+        background: #f9fafb !important;
+        border-radius: 8px !important;
+        margin: 0 5px !important;
     }
 
-    .flatpickr-time .arrowUp, 
-    .flatpickr-time .arrowDown {
-        height: 20px !important; 
-        padding: 5px !important;
-        opacity: 1 !important;
-        background: #f0f0f0; 
+    /* 箭頭優化 */
+    .flatpickr-time .arrowUp, .flatpickr-time .arrowDown {
+        padding: 0 !important;
+        height: 18px !important;
     }
-
-    .flatpickr-time .arrowUp::after { border-bottom-color: #555 !important; }
-    .flatpickr-time .arrowDown::after { border-top-color: #555 !important; }
+    .flatpickr-time .arrowUp:after { border-bottom-color: #6b7280 !important; }
+    .flatpickr-time .arrowDown:after { border-top-color: #6b7280 !important; }
 
   </style>
 </head>
@@ -227,7 +284,7 @@
       <button id="station-in"  class="station-btn">進站</button>
       <button id="station-out" class="station-btn">出站</button>
     </div>
-    <p id="selected-station"></p>
+    <p id="selected-station">尚未選擇</p>
 
     <label for="station-dropdown">選擇車站</label>
     <select id="station-dropdown">
@@ -256,13 +313,13 @@
       <option value="A22">A22 老街溪站</option>
     </select>
 
-    <label for="picker-start">開始時間 (日期+時刻)</label>
-    <input type="text" id="picker-start" placeholder="點擊選擇開始時間..." readonly>
+    <label for="picker-start">開始時間</label>
+    <input type="text" id="picker-start" placeholder="點擊選擇..." readonly>
 
-    <label for="picker-end">結束時間 (日期+時刻)</label>
-    <input type="text" id="picker-end" placeholder="請先選擇結束時間" readonly>
+    <label for="picker-end">結束時間</label>
+    <input type="text" id="picker-end" placeholder="請先選擇開始時間" readonly>
 
-    <button id="submit">送出查詢</button>
+    <button id="submit">查詢運量</button>
     <div id="error-message" class="error-message"></div>
   </div>
 
@@ -275,15 +332,13 @@
     let startPicker = null;
     let endPicker = null;
 
-    // 1. 取得「校正後的時間物件」
+    // 時間校正邏輯 (維持原本的 15 分鐘對齊)
     function getSnappedDate() {
         const date = new Date();
         const msPer15Min = 1000 * 60 * 15;
-        // 四捨五入到最近的 15 分鐘
         return new Date(Math.round(date.getTime() / msPer15Min) * msPer15Min);
     }
 
-    // 2. 將 Date 物件轉成字串 "YYYY-MM-DD HH:MM"
     function formatDateToString(dateObj) {
         const Y = dateObj.getFullYear();
         const M = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -295,7 +350,6 @@
 
     function initFlatpickr() {
         const minDate = "2025-01-01"; 
-        
         const snappedDate = getSnappedDate();
         const initialTimeStr = formatDateToString(snappedDate);
 
@@ -309,27 +363,23 @@
             minuteIncrement: 15,
             locale: "zh_tw",
             disableMobile: "true", 
-            // maxDate: today, // ★★★ 移除這行，現在可以選擇未來時間了 ★★★
             minDate: minDate
         };
 
-        // 初始化開始時間
         startPicker = flatpickr("#picker-start", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr, instance) {
-                // 當選擇開始時間後，限制結束時間不能早於它
                 if (dateStr) {
                     endPicker.set('minDate', dateStr);
                 }
             }
         });
 
-        // 初始化結束時間
         endPicker = flatpickr("#picker-end", {
             ...commonConfig,
             defaultHour: snappedDate.getHours(),
             defaultMinute: snappedDate.getMinutes(),
-            minDate: initialTimeStr // 初始狀態下，不能選比預設開始時間還早的
+            minDate: initialTimeStr
         });
     }
 
@@ -363,7 +413,7 @@
         errorDiv.style.display = 'none';
 
         if(!station || !startVal || !endVal || !stationType){
-          errorDiv.innerText = '請完整選擇：交易類型、車站、開始與結束時間';
+          errorDiv.innerText = '請完整填寫所有欄位';
           errorDiv.style.display = 'block';
           return;
         }
@@ -380,7 +430,7 @@
             liff.sendMessages([{ type:'text', text: message }])
               .then(()=>{ liff.closeWindow(); })
               .catch(err=>{ 
-                  console.error('發送錯誤:', err); 
+                  console.error(err); 
                   errorDiv.innerText = '發送失敗，請稍後再試';
                   errorDiv.style.display = 'block';
               });
@@ -396,10 +446,8 @@
       initSubmit();
       
       liff.init({ liffId: liffID }).then(()=>{
-        if(!liff.isLoggedIn() && liff.isInClient()){
-           // login
-        }
-      }).catch(err=>console.error('LIFF Error:', err));
+        if(!liff.isLoggedIn() && liff.isInClient()){ }
+      }).catch(err=>console.error(err));
     });
   </script>
 </body>
