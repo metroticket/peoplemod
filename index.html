@@ -198,37 +198,53 @@
 
     // ===== 初始化 Flatpickr 日期時間選擇器 =====
     function initFlatpickr() {
+// ===== 工具：取得最近的 15 分鐘整點時間 =====
+    function getRoundedDate(minutesInterval) {
+        const date = new Date();
+        const ms = 1000 * 60 * minutesInterval; // 轉換成毫秒
+        // 使用 Math.round 四捨五入到最近的 interval (想要無條件捨去可用 Math.floor)
+        const roundedDate = new Date(Math.round(date.getTime() / ms) * ms);
+        return roundedDate;
+    }
+
+    // ===== 初始化 Flatpickr 日期時間選擇器 =====
+    function initFlatpickr() {
         const today = new Date();
-        const minDate = "2025-01-01"; // 最早可選日期
+        const minDate = "2025-01-01"; 
+        
+        // ★★★ 修正重點：取得校正後的現在時間 (例如 10:22 -> 10:30) ★★★
+        const snappedTime = getRoundedDate(15);
 
         // 通用設定
         const commonConfig = {
-            enableTime: true,       // 啟用時間選擇
-            dateFormat: "Y-m-d H:i",// 顯示格式
-            time_24hr: true,        // 24小時制
-            minuteIncrement: 15,    // ★★★ 設定為 15 分鐘一跳 (00, 15, 30, 45) ★★★
-            locale: "zh_tw",        // 中文語系
-            disableMobile: "true",  // 強制在手機上也使用 Flatpickr 的介面 (避免原生元件不支援15分間隔)
-            maxDate: today,         // 只能選到今天
-            minDate: minDate
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            minuteIncrement: 15,    
+            locale: "zh_tw",
+            disableMobile: "true",
+            maxDate: today,
+            minDate: minDate,
+            defaultDate: snappedTime, // ★★★ 設定預設時間為校正後的時間 ★★★
+            defaultHour: snappedTime.getHours(), // 確保小時對應
+            defaultMinute: snappedTime.getMinutes() // 確保分鐘對應
         };
 
-        // 1. 設定開始時間選擇器
+        // 1. 設定開始時間
         startPicker = flatpickr("#picker-start", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr, instance) {
-                // 當選擇了開始時間後，自動設定結束時間的最小值
-                // 讓使用者無法選擇比開始時間早的結束時間
                 if (dateStr) {
                     endPicker.set('minDate', dateStr);
                 }
             }
         });
 
-        // 2. 設定結束時間選擇器
+        // 2. 設定結束時間
         endPicker = flatpickr("#picker-end", {
             ...commonConfig
         });
+    }
     }
 
     // ===== 按鈕與邏輯 =====
@@ -311,3 +327,4 @@
   </script>
 </body>
 </html>
+
