@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>總運量查詢系統</title>
+  <title>運量查詢系統</title>
   
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   
@@ -275,7 +275,7 @@
         // 將逗號 "," 替換成頓號 "、" (例如 "A1,A3" -> "A1、A3")
         const formattedStations = stationVal.replace(/,/g, '、');
 
-        const message = `功能：總運量查詢\n車站: ${formattedStations}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
+        const message = `功能：運量查詢\n車站: ${formattedStations}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
         
         if (liff.isInClient()) {
             liff.sendMessages([{ type:'text', text: message }])
@@ -303,3 +303,4 @@
   </script>
 </body>
 </html>
+
