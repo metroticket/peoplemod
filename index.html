@@ -8,269 +8,264 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  
-  <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
 
   <style>
     /* =========================================
-       1. 全局質感設定
+       1. 整體版面設計 (App 風格)
        ========================================= */
     :root {
-      --primary-color: #3b82f6; /* 現代藍 */
-      --primary-dark: #2563eb;
-      --bg-color: #f3f4f6;
+      --primary: #2563eb; /* 亮眼的科技藍 */
+      --bg-color: #f8fafc;
       --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-sub: #6b7280;
-      --radius: 16px;
+      --text-main: #1e293b;
     }
 
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", Roboto, Arial, sans-serif; 
       margin: 0; 
-      padding: 30px 20px; 
+      padding: 20px; 
       background: var(--bg-color); 
       color: var(--text-main);
       -webkit-tap-highlight-color: transparent; 
     }
 
-    /* 卡片式容器 */
     .form-group { 
       max-width: 100%; 
       margin: 0 auto; 
       background: var(--card-bg);
-      padding: 25px;
-      border-radius: 24px; /* 更大的圓角 */
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
     h1 { 
-      font-size: 22px; 
+      font-size: 20px; 
       text-align: center; 
-      margin-bottom: 30px; 
-      color: #111827;
-      font-weight: 800;
-      letter-spacing: -0.5px;
+      margin-bottom: 24px; 
+      color: #0f172a;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
     label { 
       display: block; 
-      margin-bottom: 10px; 
+      margin-bottom: 8px; 
       font-size: 14px; 
-      color: var(--text-sub); 
+      color: #64748b; 
       font-weight: 600;
-      margin-left: 4px;
     }
 
     /* =========================================
-       2. 按鈕與輸入框 (現代化)
+       2. 按鈕與輸入框優化
        ========================================= */
     .station-selection { 
       display: flex; 
-      gap: 15px; 
-      margin-bottom: 10px; 
+      gap: 12px; 
+      margin-bottom: 15px; 
     }
     
     .station-btn { 
       flex: 1; 
-      padding: 16px; 
-      border: 2px solid transparent; 
-      background: #f3f4f6; 
-      color: #9ca3af;
-      border-radius: var(--radius); 
+      padding: 14px; 
+      border: 1px solid #e2e8f0; 
+      background: #f1f5f9; 
+      color: #94a3b8;
+      border-radius: 12px; 
       font-size: 16px; 
       font-weight: 600;
       cursor: pointer; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease;
     }
     
     .station-btn.selected { 
       background: #eff6ff; 
-      color: var(--primary-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
     }
 
     #selected-station {
       font-size: 13px;
-      color: var(--primary-color);
+      color: var(--primary);
       margin-bottom: 25px;
       text-align: right;
       height: 20px; 
       font-weight: 500;
     }
 
-    /* 輸入框美化 */
-    input[type="text"], 
-    select { 
+    /* 輸入框樣式 */
+    input[type="text"], select { 
       width: 100%; 
       padding: 16px; 
       margin-bottom: 25px; 
       font-size: 16px; 
-      border: 1px solid #e5e7eb; 
-      border-radius: var(--radius); 
-      background: #f9fafb; 
-      color: #111827;
+      border: 1px solid #cbd5e1; 
+      border-radius: 12px; 
+      background: #fff; 
+      color: #334155;
       box-sizing: border-box; 
       -webkit-appearance: none; 
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: var(--primary-color);
-      background: #fff;
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
-    /* 加上小圖示 */
+    /* 加入小圖示 */
     input[readonly] {
         cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' /%3E%3C/svg%3E");
+        background-color: #fff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' /%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 15px center;
         background-size: 20px;
     }
 
     select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 15px center;
         background-size: 16px;
     }
 
-    /* 送出按鈕 */
     #submit { 
       width: 100%; 
-      padding: 18px; 
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+      padding: 16px; 
+      background: linear-gradient(135deg, #2563eb, #1d4ed8); 
       color: #fff; 
       border: none; 
-      border-radius: var(--radius); 
+      border-radius: 14px; 
       font-size: 18px; 
       font-weight: 700;
       cursor: pointer; 
-      margin-top: 15px;
-      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-      transition: transform 0.1s, box-shadow 0.1s;
+      margin-top: 10px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
     }
     
-    #submit:active { 
-      transform: scale(0.98);
-      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-    }
+    #submit:active { transform: scale(0.98); }
 
     .error-message { 
       color: #ef4444; 
       margin-top: 20px; 
       text-align: center; 
-      font-size: 14px;
-      padding: 12px;
+      font-size: 14px; 
+      padding: 10px;
       background: #fef2f2;
-      border-radius: 12px;
+      border-radius: 8px;
       display: none; 
-      border: 1px solid #fee2e2;
     }
 
     /* =========================================
-       3. ★★★ Flatpickr 樣式重塑 (Modern UI) ★★★
+       3. ★★★ Flatpickr 樣式魔改 (核心重點) ★★★
+       這段 CSS 會把原本醜醜的視窗變成現代化彈窗
        ========================================= */
     
-    /* 彈窗本體：圓角更大，陰影更柔和 */
+    /* (A) 彈窗本體：置中、圓角、陰影 */
     .flatpickr-calendar {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
-        width: 320px !important;
-        border-radius: 20px !important;
+        width: 340px !important;
+        max-width: 90vw !important;
+        border-radius: 24px !important;
         border: none !important;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
-        background: #fff !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
         z-index: 99999 !important;
-        padding-bottom: 10px !important;
+        padding: 10px !important;
+        background: #fff !important;
     }
 
-    /* 毛玻璃背景遮罩 */
+    /* (B) 背景遮罩：模糊效果 */
     .flatpickr-calendar.open::before {
         content: '';
         position: fixed;
         top: -200%; left: -200%; width: 500%; height: 500%;
-        background: rgba(0, 0, 0, 0.3); /* 降低透明度 */
-        backdrop-filter: blur(6px); /* ★★★ 模糊特效 ★★★ */
+        background: rgba(0, 0, 0, 0.4); /* 半透明黑 */
+        backdrop-filter: blur(5px); /* 毛玻璃模糊 */
         z-index: -1;
         pointer-events: none;
     }
 
-    /* 頂部月份欄 */
+    /* (C) 頂部月份欄 */
     .flatpickr-months {
-        background: transparent !important;
-        padding-top: 15px !important;
-        margin-bottom: 10px !important;
+        padding-top: 10px !important;
+        padding-bottom: 5px !important;
     }
-    .flatpickr-months .flatpickr-month {
-        color: #1f2937 !important;
-        fill: #1f2937 !important;
-    }
-    .flatpickr-current-month .flatpickr-monthDropdown-months {
-        font-weight: 700 !important;
-    }
-
-    /* 星期標題 */
-    .flatpickr-weekdays {
-        background: transparent !important;
-    }
-    span.flatpickr-weekday {
-        color: #9ca3af !important;
-        font-weight: 600 !important;
-    }
-
-    /* 日期圓圈 */
-    .flatpickr-day {
-        border-radius: 12px !important; /* 方形圓角，比較像 iOS */
-        margin: 2px !important;
-        border: none !important;
-        color: #374151 !important;
-        font-weight: 500 !important;
+    .flatpickr-current-month {
+        font-size: 110% !important;
     }
     
-    .flatpickr-day.selected, 
-    .flatpickr-day.startRange, 
-    .flatpickr-day.endRange {
-        background: var(--primary-color) !important;
-        color: #fff !important;
-        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4) !important;
-    }
-    
-    .flatpickr-day.today {
-        border: 2px solid var(--primary-color) !important;
-    }
-
-    /* 時間區域：更現代的設計 */
-    .flatpickr-time {
-        border-top: 1px solid #f3f4f6 !important;
-        padding-top: 15px !important;
+    /* (D) 日期格子：加大、更好點 */
+    .flatpickr-innerContainer {
         padding-bottom: 10px !important;
-        height: auto !important;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .flatpickr-day {
+        border-radius: 12px !important;
+        height: 42px !important;
+        line-height: 42px !important;
+        margin: 3px !important;
+        font-size: 16px !important;
+        color: #334155 !important;
+        border: 1px solid transparent !important;
+    }
+    .flatpickr-day.selected {
+        background: var(--primary) !important;
+        color: #fff !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3) !important;
+        font-weight: bold !important;
+    }
+    .flatpickr-day.today {
+        background: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
     }
 
+    /* (E) 時間選擇區塊：這部分最重要，加大尺寸 */
+    .flatpickr-time {
+        height: 80px !important; /* 加高 */
+        line-height: 80px !important;
+        max-height: 80px !important;
+        padding-top: 10px !important;
+    }
+    
+    /* 時間數字 */
     .flatpickr-time input.flatpickr-hour, 
     .flatpickr-time input.flatpickr-minute {
+        font-size: 28px !important; /* 字體超大 */
         font-weight: 700 !important;
-        font-size: 26px !important;
-        color: #1f2937 !important;
-        background: #f9fafb !important;
-        border-radius: 8px !important;
+        height: 60px !important;
+        color: #1e293b !important;
+        background: #f8fafc !important;
+        border-radius: 12px !important;
         margin: 0 5px !important;
     }
 
-    /* 箭頭優化 */
-    .flatpickr-time .arrowUp, .flatpickr-time .arrowDown {
-        padding: 0 !important;
-        height: 18px !important;
+    /* 調整箭頭 (讓它很容易點) */
+    .flatpickr-time .numInputWrapper span.arrowUp,
+    .flatpickr-time .numInputWrapper span.arrowDown {
+        height: 25px !important;
+        padding: 5px !important;
+        opacity: 0; /* 隱藏預設醜箭頭，改用點擊數字區域上下滑動或點擊 */
     }
-    .flatpickr-time .arrowUp:after { border-bottom-color: #6b7280 !important; }
-    .flatpickr-time .arrowDown:after { border-top-color: #6b7280 !important; }
+    
+    /* 特別優化：讓使用者知道可以點時間 */
+    .flatpickr-time:after {
+        content: "請點擊數字或上下滑動";
+        display: block;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        color: #94a3b8;
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+    }
 
   </style>
 </head>
@@ -286,7 +281,7 @@
     </div>
     <p id="selected-station">尚未選擇</p>
 
-    <label for="station-dropdown">選擇車站</label>
+    <label>選擇車站</label>
     <select id="station-dropdown">
       <option value="">請選擇車站</option>
       <option value="A1">A1 台北車站</option>
@@ -313,10 +308,10 @@
       <option value="A22">A22 老街溪站</option>
     </select>
 
-    <label for="picker-start">開始時間</label>
+    <label>開始時間 (日期+時間)</label>
     <input type="text" id="picker-start" placeholder="點擊選擇..." readonly>
 
-    <label for="picker-end">結束時間</label>
+    <label>結束時間 (日期+時間)</label>
     <input type="text" id="picker-end" placeholder="請先選擇開始時間" readonly>
 
     <button id="submit">查詢運量</button>
@@ -332,7 +327,7 @@
     let startPicker = null;
     let endPicker = null;
 
-    // 時間校正邏輯 (維持原本的 15 分鐘對齊)
+    // 取得校正後的現在時間 (15分鐘間隔)
     function getSnappedDate() {
         const date = new Date();
         const msPer15Min = 1000 * 60 * 15;
@@ -353,19 +348,20 @@
         const snappedDate = getSnappedDate();
         const initialTimeStr = formatDateToString(snappedDate);
 
-        // 強制填入開始時間
+        // 預填開始時間
         document.getElementById('picker-start').value = initialTimeStr;
-        
+
         const commonConfig = {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
-            minuteIncrement: 15,
+            minuteIncrement: 15, // ★ 15分鐘間隔
             locale: "zh_tw",
-            disableMobile: "true", 
+            disableMobile: "true", // ★ 關鍵：設為 true 才能使用我們的自訂樣式
             minDate: minDate
         };
 
+        // 開始時間設定
         startPicker = flatpickr("#picker-start", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr, instance) {
@@ -375,6 +371,7 @@
             }
         });
 
+        // 結束時間設定
         endPicker = flatpickr("#picker-end", {
             ...commonConfig,
             defaultHour: snappedDate.getHours(),
