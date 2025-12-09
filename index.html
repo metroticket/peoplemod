@@ -7,270 +7,183 @@
   
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  
-  <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-select/dist/style/mobile-select.css" />
+  <script src="https://cdn.jsdelivr.net/npm/mobile-select/dist/mobile-select.iife.min.js"></script>
 
   <style>
     /* =========================================
-       1. 全局質感設定
+       1. 全局設定
        ========================================= */
     :root {
-      --primary-color: #3b82f6; /* 現代藍 */
-      --primary-dark: #2563eb;
-      --bg-color: #f3f4f6;
-      --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-sub: #6b7280;
-      --radius: 16px;
+      --primary: #3b82f6; /* 現代藍 */
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #1f2937;
     }
 
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", Roboto, Arial, sans-serif; 
       margin: 0; 
       padding: 30px 20px; 
-      background: var(--bg-color); 
-      color: var(--text-main);
+      background: var(--bg); 
+      color: var(--text);
       -webkit-tap-highlight-color: transparent; 
     }
 
-    /* 卡片式容器 */
     .form-group { 
-      max-width: 100%; 
       margin: 0 auto; 
-      background: var(--card-bg);
+      background: var(--card);
       padding: 25px;
-      border-radius: 24px; /* 更大的圓角 */
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      border-radius: 20px; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 
     h1 { 
-      font-size: 22px; 
+      font-size: 20px; 
       text-align: center; 
-      margin-bottom: 30px; 
+      margin-bottom: 25px; 
       color: #111827;
-      font-weight: 800;
-      letter-spacing: -0.5px;
+      font-weight: 700;
     }
 
     label { 
       display: block; 
-      margin-bottom: 10px; 
+      margin-bottom: 8px; 
       font-size: 14px; 
-      color: var(--text-sub); 
+      color: #6b7280; 
       font-weight: 600;
-      margin-left: 4px;
     }
 
     /* =========================================
-       2. 按鈕與輸入框 (現代化)
+       2. 按鈕與輸入框
        ========================================= */
     .station-selection { 
       display: flex; 
-      gap: 15px; 
+      gap: 12px; 
       margin-bottom: 10px; 
     }
     
     .station-btn { 
       flex: 1; 
-      padding: 16px; 
-      border: 2px solid transparent; 
-      background: #f3f4f6; 
+      padding: 14px; 
+      border: 1px solid #e5e7eb; 
+      background: #f9fafb; 
       color: #9ca3af;
-      border-radius: var(--radius); 
+      border-radius: 12px; 
       font-size: 16px; 
       font-weight: 600;
       cursor: pointer; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s;
     }
     
     .station-btn.selected { 
       background: #eff6ff; 
-      color: var(--primary-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
     }
 
     #selected-station {
       font-size: 13px;
-      color: var(--primary-color);
-      margin-bottom: 25px;
+      color: var(--primary);
+      margin-bottom: 20px;
       text-align: right;
-      height: 20px; 
+      height: 18px; 
       font-weight: 500;
     }
 
-    /* 輸入框美化 */
-    input[type="text"], 
-    select { 
-      width: 100%; 
-      padding: 16px; 
-      margin-bottom: 25px; 
-      font-size: 16px; 
-      border: 1px solid #e5e7eb; 
-      border-radius: var(--radius); 
-      background: #f9fafb; 
-      color: #111827;
-      box-sizing: border-box; 
-      -webkit-appearance: none; 
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary-color);
+    /* 模擬成按鈕的輸入框 */
+    .picker-trigger {
+      width: 100%;
+      padding: 16px;
+      margin-bottom: 25px;
+      font-size: 17px;
+      font-weight: 500;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
       background: #fff;
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      color: #374151;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .picker-trigger.placeholder {
+        color: #9ca3af;
     }
 
-    /* 加上小圖示 */
-    input[readonly] {
-        cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' /%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 15px center;
-        background-size: 20px;
+    /* 右側小箭頭 */
+    .picker-trigger::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid #ccc;
+      border-right: 2px solid #ccc;
+      transform: rotate(45deg);
+      margin-right: 5px;
     }
 
     select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 15px center;
-        background-size: 16px;
+        width: 100%;
+        padding: 16px;
+        margin-bottom: 25px;
+        font-size: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+        -webkit-appearance: none; 
     }
 
-    /* 送出按鈕 */
     #submit { 
       width: 100%; 
       padding: 18px; 
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
+      background: linear-gradient(135deg, #3b82f6, #2563eb); 
       color: #fff; 
       border: none; 
-      border-radius: var(--radius); 
+      border-radius: 14px; 
       font-size: 18px; 
       font-weight: 700;
       cursor: pointer; 
-      margin-top: 15px;
-      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-      transition: transform 0.1s, box-shadow 0.1s;
+      margin-top: 10px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
     }
     
-    #submit:active { 
-      transform: scale(0.98);
-      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-    }
+    #submit:active { transform: scale(0.98); }
 
     .error-message { 
       color: #ef4444; 
       margin-top: 20px; 
       text-align: center; 
       font-size: 14px;
-      padding: 12px;
-      background: #fef2f2;
-      border-radius: 12px;
       display: none; 
-      border: 1px solid #fee2e2;
     }
 
     /* =========================================
-       3. ★★★ Flatpickr 樣式重塑 (Modern UI) ★★★
+       3. MobileSelect 滾輪樣式微調 (讓它更像 iOS)
        ========================================= */
-    
-    /* 彈窗本體：圓角更大，陰影更柔和 */
-    .flatpickr-calendar {
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 320px !important;
-        border-radius: 20px !important;
-        border: none !important;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
-        background: #fff !important;
+    .ms-mobile-select {
         z-index: 99999 !important;
-        padding-bottom: 10px !important;
     }
-
-    /* 毛玻璃背景遮罩 */
-    .flatpickr-calendar.open::before {
-        content: '';
-        position: fixed;
-        top: -200%; left: -200%; width: 500%; height: 500%;
-        background: rgba(0, 0, 0, 0.3); /* 降低透明度 */
-        backdrop-filter: blur(6px); /* ★★★ 模糊特效 ★★★ */
-        z-index: -1;
-        pointer-events: none;
+    .ms-title-bar {
+        background: #f9fafb !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        border-radius: 15px 15px 0 0 !important;
     }
-
-    /* 頂部月份欄 */
-    .flatpickr-months {
-        background: transparent !important;
-        padding-top: 15px !important;
-        margin-bottom: 10px !important;
+    .ms-confirm {
+        color: var(--primary) !important;
+        font-weight: bold !important;
     }
-    .flatpickr-months .flatpickr-month {
-        color: #1f2937 !important;
-        fill: #1f2937 !important;
-    }
-    .flatpickr-current-month .flatpickr-monthDropdown-months {
-        font-weight: 700 !important;
-    }
-
-    /* 星期標題 */
-    .flatpickr-weekdays {
-        background: transparent !important;
-    }
-    span.flatpickr-weekday {
-        color: #9ca3af !important;
-        font-weight: 600 !important;
-    }
-
-    /* 日期圓圈 */
-    .flatpickr-day {
-        border-radius: 12px !important; /* 方形圓角，比較像 iOS */
-        margin: 2px !important;
-        border: none !important;
-        color: #374151 !important;
+    .ms-wheel-item {
+        font-family: -apple-system, BlinkMacSystemFont !important;
         font-weight: 500 !important;
     }
-    
-    .flatpickr-day.selected, 
-    .flatpickr-day.startRange, 
-    .flatpickr-day.endRange {
-        background: var(--primary-color) !important;
-        color: #fff !important;
-        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4) !important;
-    }
-    
-    .flatpickr-day.today {
-        border: 2px solid var(--primary-color) !important;
-    }
-
-    /* 時間區域：更現代的設計 */
-    .flatpickr-time {
-        border-top: 1px solid #f3f4f6 !important;
-        padding-top: 15px !important;
-        padding-bottom: 10px !important;
-        height: auto !important;
-    }
-
-    .flatpickr-time input.flatpickr-hour, 
-    .flatpickr-time input.flatpickr-minute {
+    /* 選中項目的樣式 */
+    .ms-wheel-item.selected {
+        color: #111827 !important; 
         font-weight: 700 !important;
-        font-size: 26px !important;
-        color: #1f2937 !important;
-        background: #f9fafb !important;
-        border-radius: 8px !important;
-        margin: 0 5px !important;
     }
-
-    /* 箭頭優化 */
-    .flatpickr-time .arrowUp, .flatpickr-time .arrowDown {
-        padding: 0 !important;
-        height: 18px !important;
-    }
-    .flatpickr-time .arrowUp:after { border-bottom-color: #6b7280 !important; }
-    .flatpickr-time .arrowDown:after { border-top-color: #6b7280 !important; }
 
   </style>
 </head>
@@ -286,7 +199,7 @@
     </div>
     <p id="selected-station">尚未選擇</p>
 
-    <label for="station-dropdown">選擇車站</label>
+    <label>選擇車站</label>
     <select id="station-dropdown">
       <option value="">請選擇車站</option>
       <option value="A1">A1 台北車站</option>
@@ -313,76 +226,185 @@
       <option value="A22">A22 老街溪站</option>
     </select>
 
-    <label for="picker-start">開始時間</label>
-    <input type="text" id="picker-start" placeholder="點擊選擇..." readonly>
+    <label>開始時間 (滾輪選擇)</label>
+    <div id="trigger-start" class="picker-trigger placeholder">點擊選擇...</div>
+    <input type="hidden" id="input-start">
 
-    <label for="picker-end">結束時間</label>
-    <input type="text" id="picker-end" placeholder="請先選擇開始時間" readonly>
+    <label>結束時間 (滾輪選擇)</label>
+    <div id="trigger-end" class="picker-trigger placeholder">請先選擇開始時間</div>
+    <input type="hidden" id="input-end">
 
     <button id="submit">查詢運量</button>
     <div id="error-message" class="error-message"></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
-
   <script>
     var liffID = '2006470777-N3VdwgyO'; 
     let stationType = '';
-    let startPicker = null;
-    let endPicker = null;
+    
+    // 存放 MobileSelect 實例
+    let msStart = null;
+    let msEnd = null;
 
-    // 時間校正邏輯 (維持原本的 15 分鐘對齊)
-    function getSnappedDate() {
-        const date = new Date();
-        const msPer15Min = 1000 * 60 * 15;
-        return new Date(Math.round(date.getTime() / msPer15Min) * msPer15Min);
+    // ============================================
+    // 1. 資料產生器：建立滾輪需要的資料陣列
+    // ============================================
+    
+    // A. 產生日期陣列 (從 2025-01-01 到 未來 365 天)
+    function generateDateData() {
+        const dates = [];
+        const start = new Date("2025-01-01");
+        const end = new Date();
+        end.setDate(end.getDate() + 365); // 往後推一年
+
+        const curr = new Date(start);
+        const weekMap = ['日', '一', '二', '三', '四', '五', '六'];
+
+        while(curr <= end) {
+            const Y = curr.getFullYear();
+            const M = String(curr.getMonth()+1).padStart(2,'0');
+            const D = String(curr.getDate()).padStart(2,'0');
+            const w = weekMap[curr.getDay()];
+            
+            // value: 程式用的真實值, id: 顯示在滾輪上的文字
+            // 讓滾輪顯示 "2025-12-09 (二)" 這種清楚的格式
+            const val = `${Y}-${M}-${D}`;
+            const text = `${val} (${w})`;
+            
+            dates.push({ id: val, value: text });
+            curr.setDate(curr.getDate() + 1);
+        }
+        return dates;
     }
 
-    function formatDateToString(dateObj) {
-        const Y = dateObj.getFullYear();
-        const M = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const D = String(dateObj.getDate()).padStart(2, '0');
-        const h = String(dateObj.getHours()).padStart(2, '0');
-        const m = String(dateObj.getMinutes()).padStart(2, '0');
-        return `${Y}-${M}-${D} ${h}:${m}`;
+    // B. 產生小時 (00-23)
+    function generateHours() {
+        const arr = [];
+        for(let i=0; i<24; i++){
+            const t = String(i).padStart(2,'0');
+            arr.push({ id: t, value: t + "時" });
+        }
+        return arr;
     }
 
-    function initFlatpickr() {
-        const minDate = "2025-01-01"; 
-        const snappedDate = getSnappedDate();
-        const initialTimeStr = formatDateToString(snappedDate);
+    // C. 產生分鐘 (00, 15, 30, 45) - ★★★ 關鍵需求 ★★★
+    function generateMinutes() {
+        return [
+            { id: '00', value: '00分' },
+            { id: '15', value: '15分' },
+            { id: '30', value: '30分' },
+            { id: '45', value: '45分' }
+        ];
+    }
 
-        // 強制填入開始時間
-        document.getElementById('picker-start').value = initialTimeStr;
+    // 資料準備
+    const dateArr = generateDateData();
+    const hourArr = generateHours();
+    const minArr  = generateMinutes();
+    
+    // 預設對齊邏輯：取得現在時間最近的 15 分鐘
+    function getSnappedNow() {
+        const now = new Date();
+        const ms = 1000 * 60 * 15;
+        const snapped = new Date(Math.round(now.getTime() / ms) * ms);
         
-        const commonConfig = {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            time_24hr: true,
-            minuteIncrement: 15,
-            locale: "zh_tw",
-            disableMobile: "true", 
-            minDate: minDate
+        // 格式化回傳
+        const Y = snapped.getFullYear();
+        const M = String(snapped.getMonth()+1).padStart(2,'0');
+        const D = String(snapped.getDate()).padStart(2,'0');
+        const h = String(snapped.getHours()).padStart(2,'0');
+        const m = String(snapped.getMinutes()).padStart(2,'0');
+        
+        return {
+            dateVal: `${Y}-${M}-${D}`,
+            hourVal: h,
+            minVal: m,
+            fullStr: `${Y}-${M}-${D} ${h}:${m}`
         };
+    }
 
-        startPicker = flatpickr("#picker-start", {
-            ...commonConfig,
-            onChange: function(selectedDates, dateStr, instance) {
-                if (dateStr) {
-                    endPicker.set('minDate', dateStr);
-                }
+    // ============================================
+    // 2. 初始化滾輪 MobileSelect
+    // ============================================
+    function initMobilePickers() {
+        const nowObj = getSnappedNow();
+
+        // --- 設定開始時間選擇器 ---
+        msStart = new MobileSelect({
+            trigger: "#trigger-start",
+            title: "選擇開始時間",
+            wheels: [
+                { data: dateArr }, // 第一欄：日期
+                { data: hourArr }, // 第二欄：小時
+                { data: minArr }   // 第三欄：分鐘 (00,15,30,45)
+            ],
+            initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal], // 預設選中最近的15分鐘
+            colWidth: [5, 2, 2], // 調整欄位寬度比例，日期寬一點
+            onShow: function(){
+                // 修正: 確保顯示時如果是空白，可以自動跳到 initValue
+            },
+            callback: function(indexArr, data) {
+                // data 格式: [{id: '2025-12-09', value:...}, {id:'10',...}, {id:'15',...}]
+                const datePart = data[0].id;
+                const hourPart = data[1].id;
+                const minPart  = data[2].id;
+                const finalStr = `${datePart} ${hourPart}:${minPart}`;
+
+                // 填入隱藏欄位與顯示文字
+                document.getElementById('input-start').value = finalStr;
+                
+                const showDiv = document.getElementById('trigger-start');
+                showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
+                showDiv.classList.remove('placeholder');
+
+                // ★ 連動結束時間 (讓結束時間預設跳到跟開始時間一樣)
+                // 這樣使用者選結束時間時，不用從頭滾
+                msEnd.locatePosition(0, indexArr[0]); // 同步日期
+                msEnd.locatePosition(1, indexArr[1]); // 同步小時
+                msEnd.locatePosition(2, indexArr[2]); // 同步分鐘
             }
         });
 
-        endPicker = flatpickr("#picker-end", {
-            ...commonConfig,
-            defaultHour: snappedDate.getHours(),
-            defaultMinute: snappedDate.getMinutes(),
-            minDate: initialTimeStr
+        // 手動觸發一次填入預設值 (讓畫面上直接顯示預設時間)
+        // 為了 UI 乾淨，我們這裡也可以選擇保持 "點擊選擇..."，看您喜好。
+        // 這裡示範：直接填入預設值
+        const defText = `${nowObj.dateVal} (${new Date().toLocaleDateString('zh-TW', {weekday:'short'})}) ${nowObj.hourVal}:${nowObj.minVal}`;
+        // 由於我們沒辦法簡單從 id 反查 dateArr 的顯示文字(value)，
+        // 為了簡單起見，這裡先用 JS 設值
+        document.getElementById('input-start').value = nowObj.fullStr;
+        document.getElementById('trigger-start').textContent = nowObj.fullStr; // 簡化顯示
+        document.getElementById('trigger-start').classList.remove('placeholder');
+
+
+        // --- 設定結束時間選擇器 ---
+        msEnd = new MobileSelect({
+            trigger: "#trigger-end",
+            title: "選擇結束時間",
+            wheels: [
+                { data: dateArr },
+                { data: hourArr },
+                { data: minArr }
+            ],
+            // 初始值也設為現在，但會被上面的 callback 覆蓋
+            initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal],
+            colWidth: [5, 2, 2],
+            callback: function(indexArr, data) {
+                const datePart = data[0].id;
+                const hourPart = data[1].id;
+                const minPart  = data[2].id;
+                const finalStr = `${datePart} ${hourPart}:${minPart}`;
+
+                document.getElementById('input-end').value = finalStr;
+                const showDiv = document.getElementById('trigger-end');
+                showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
+                showDiv.classList.remove('placeholder');
+            }
         });
     }
 
+    // ============================================
+    // 3. 其他邏輯
+    // ============================================
     function initStationButtons(){
       const inBtn = document.getElementById('station-in');
       const outBtn= document.getElementById('station-out');
@@ -405,8 +427,8 @@
 
     function initSubmit(){
       document.getElementById('submit').addEventListener('click', ()=>{
-        const startVal = document.getElementById('picker-start').value;
-        const endVal   = document.getElementById('picker-end').value;
+        const startVal = document.getElementById('input-start').value; // 拿隱藏欄位的值
+        const endVal   = document.getElementById('input-end').value;
         const station  = document.getElementById('station-dropdown').value;
         const errorDiv = document.getElementById('error-message');
 
@@ -441,7 +463,7 @@
     }
 
     window.addEventListener('load', function(){
-      initFlatpickr();
+      initMobilePickers();
       initStationButtons();
       initSubmit();
       
