@@ -127,7 +127,6 @@
       display: none; 
     }
     
-    /* 修正 Flatpickr 手機顯示 */
     .flatpickr-calendar {
       box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
     }
@@ -176,7 +175,7 @@
     <input type="text" id="picker-start" placeholder="點擊選擇開始時間..." readonly>
 
     <label for="picker-end">結束時間 (日期+時刻)</label>
-    <input type="text" id="picker-end" placeholder="點擊選擇結束時間..." readonly>
+    <input type="text" id="picker-end" placeholder="請先選擇結束時間" readonly>
 
     <button id="submit">送出查詢</button>
     <div id="error-message" class="error-message"></div>
@@ -191,22 +190,21 @@
     let startPicker = null;
     let endPicker = null;
 
-    // ★★★ 核心邏輯：計算並格式化最近的15分鐘時間字串 ★★★
-    function getSnappedTimeString() {
+    // 1. 取得「校正後的時間物件」 (回傳 Date Object)
+    function getSnappedDate() {
         const date = new Date();
         const msPer15Min = 1000 * 60 * 15;
-        
         // 四捨五入到最近的 15 分鐘
-        const roundedDate = new Date(Math.round(date.getTime() / msPer15Min) * msPer15Min);
-        
-        // 手動格式化成 "YYYY-MM-DD HH:MM" 字串
-        // 這樣可以直接餵給 input 的 value，強迫 Flatpickr 服從
-        const Y = roundedDate.getFullYear();
-        const M = String(roundedDate.getMonth() + 1).padStart(2, '0');
-        const D = String(roundedDate.getDate()).padStart(2, '0');
-        const h = String(roundedDate.getHours()).padStart(2, '0');
-        const m = String(roundedDate.getMinutes()).padStart(2, '0');
-        
+        return new Date(Math.round(date.getTime() / msPer15Min) * msPer15Min);
+    }
+
+    // 2. 將 Date 物件轉成字串 "YYYY-MM-DD HH:MM"
+    function formatDateToString(dateObj) {
+        const Y = dateObj.getFullYear();
+        const M = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const D = String(dateObj.getDate()).padStart(2, '0');
+        const h = String(dateObj.getHours()).padStart(2, '0');
+        const m = String(dateObj.getMinutes()).padStart(2, '0');
         return `${Y}-${M}-${D} ${h}:${m}`;
     }
 
@@ -214,41 +212,45 @@
         const today = new Date();
         const minDate = "2025-01-01"; 
         
-        // 1. 先取得一個標準化的初始時間字串 (例如 "2025-12-09 10:30")
-        const initialTimeStr = getSnappedTimeString();
+        // 取得校正後的現在時間物件
+        const snappedDate = getSnappedDate();
+        // 轉成字串
+        const initialTimeStr = formatDateToString(snappedDate);
 
-        // 2. ★★★ 強制先把這個值填入輸入框，這樣 Flatpickr 就沒得選擇，只能從這個時間開始 ★★★
+        // ★★★ 重點修改：只填入「開始時間」，結束時間保持空白 ★★★
         document.getElementById('picker-start').value = initialTimeStr;
-        document.getElementById('picker-end').value   = initialTimeStr;
+        // document.getElementById('picker-end').value = ''; // 保持空白
 
         const commonConfig = {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
-            minuteIncrement: 15, // 設定15分鐘一跳
+            minuteIncrement: 15, // 15分鐘一跳
             locale: "zh_tw",
             disableMobile: "true",
             maxDate: today,
-            minDate: minDate,
-            // 這裡不需要再設 defaultDate，因為我們已經手動填入 input value 了
-            onChange: function(selectedDates, dateStr, instance) {
-               // 當值改變時的邏輯...
-            }
+            minDate: minDate
         };
 
-        // 初始化
+        // 初始化開始時間
         startPicker = flatpickr("#picker-start", {
             ...commonConfig,
             onChange: function(selectedDates, dateStr, instance) {
-                // 連動結束時間的最小值
+                // 當開始時間改變時，更新結束時間的 minDate
                 if (dateStr) {
                     endPicker.set('minDate', dateStr);
                 }
             }
         });
 
+        // 初始化結束時間
         endPicker = flatpickr("#picker-end", {
-            ...commonConfig
+            ...commonConfig,
+            // ★★★ 即使是空白，預設開啟的面板時間也要對齊 snappedDate (確保分鐘是 00, 15, 30...)
+            defaultHour: snappedDate.getHours(),
+            defaultMinute: snappedDate.getMinutes(),
+            // ★★★ 初始狀態下，結束時間的最小值就是現在預設的開始時間
+            minDate: initialTimeStr
         });
     }
 
@@ -316,7 +318,6 @@
       
       liff.init({ liffId: liffID }).then(()=>{
         if(!liff.isLoggedIn() && liff.isInClient()){
-           // login logic if needed
         }
       }).catch(err=>console.error('LIFF Error:', err));
     });
