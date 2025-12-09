@@ -15,7 +15,7 @@
        1. 全局設定
        ========================================= */
     :root {
-      --primary: #3b82f6; /* 現代藍 */
+      --primary: #3b82f6; 
       --bg: #f3f4f6;
       --card: #ffffff;
       --text: #1f2937;
@@ -74,6 +74,9 @@
       font-weight: 600;
       cursor: pointer; 
       transition: all 0.2s;
+      /* 確保按鈕可以被點擊 */
+      pointer-events: auto;
+      user-select: none;
     }
     
     .station-btn.selected { 
@@ -108,6 +111,7 @@
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
+      min-height: 54px; /* 防止塌陷 */
     }
     
     .picker-trigger.placeholder {
@@ -161,7 +165,7 @@
     }
 
     /* =========================================
-       3. MobileSelect 滾輪樣式微調 (讓它更像 iOS)
+       3. MobileSelect 滾輪樣式微調
        ========================================= */
     .ms-mobile-select {
         z-index: 99999 !important;
@@ -179,7 +183,6 @@
         font-family: -apple-system, BlinkMacSystemFont !important;
         font-weight: 500 !important;
     }
-    /* 選中項目的樣式 */
     .ms-wheel-item.selected {
         color: #111827 !important; 
         font-weight: 700 !important;
@@ -246,16 +249,12 @@
     let msStart = null;
     let msEnd = null;
 
-    // ============================================
-    // 1. 資料產生器：建立滾輪需要的資料陣列
-    // ============================================
-    
     // A. 產生日期陣列 (從 2025-01-01 到 未來 365 天)
     function generateDateData() {
         const dates = [];
         const start = new Date("2025-01-01");
         const end = new Date();
-        end.setDate(end.getDate() + 365); // 往後推一年
+        end.setDate(end.getDate() + 365); 
 
         const curr = new Date(start);
         const weekMap = ['日', '一', '二', '三', '四', '五', '六'];
@@ -266,8 +265,7 @@
             const D = String(curr.getDate()).padStart(2,'0');
             const w = weekMap[curr.getDay()];
             
-            // value: 程式用的真實值, id: 顯示在滾輪上的文字
-            // 讓滾輪顯示 "2025-12-09 (二)" 這種清楚的格式
+            // id: 程式用的真實值, value: 顯示在滾輪上的文字
             const val = `${Y}-${M}-${D}`;
             const text = `${val} (${w})`;
             
@@ -287,7 +285,7 @@
         return arr;
     }
 
-    // C. 產生分鐘 (00, 15, 30, 45) - ★★★ 關鍵需求 ★★★
+    // C. 產生分鐘 (00, 15, 30, 45)
     function generateMinutes() {
         return [
             { id: '00', value: '00分' },
@@ -297,18 +295,16 @@
         ];
     }
 
-    // 資料準備
     const dateArr = generateDateData();
     const hourArr = generateHours();
     const minArr  = generateMinutes();
     
-    // 預設對齊邏輯：取得現在時間最近的 15 分鐘
+    // 取得校正後的現在時間
     function getSnappedNow() {
         const now = new Date();
         const ms = 1000 * 60 * 15;
         const snapped = new Date(Math.round(now.getTime() / ms) * ms);
         
-        // 格式化回傳
         const Y = snapped.getFullYear();
         const M = String(snapped.getMonth()+1).padStart(2,'0');
         const D = String(snapped.getDate()).padStart(2,'0');
@@ -324,92 +320,17 @@
     }
 
     // ============================================
-    // 2. 初始化滾輪 MobileSelect
+    // 核心邏輯：初始化功能
     // ============================================
-    function initMobilePickers() {
-        const nowObj = getSnappedNow();
 
-        // --- 設定開始時間選擇器 ---
-        msStart = new MobileSelect({
-            trigger: "#trigger-start",
-            title: "選擇開始時間",
-            wheels: [
-                { data: dateArr }, // 第一欄：日期
-                { data: hourArr }, // 第二欄：小時
-                { data: minArr }   // 第三欄：分鐘 (00,15,30,45)
-            ],
-            initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal], // 預設選中最近的15分鐘
-            colWidth: [5, 2, 2], // 調整欄位寬度比例，日期寬一點
-            onShow: function(){
-                // 修正: 確保顯示時如果是空白，可以自動跳到 initValue
-            },
-            callback: function(indexArr, data) {
-                // data 格式: [{id: '2025-12-09', value:...}, {id:'10',...}, {id:'15',...}]
-                const datePart = data[0].id;
-                const hourPart = data[1].id;
-                const minPart  = data[2].id;
-                const finalStr = `${datePart} ${hourPart}:${minPart}`;
-
-                // 填入隱藏欄位與顯示文字
-                document.getElementById('input-start').value = finalStr;
-                
-                const showDiv = document.getElementById('trigger-start');
-                showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
-                showDiv.classList.remove('placeholder');
-
-                // ★ 連動結束時間 (讓結束時間預設跳到跟開始時間一樣)
-                // 這樣使用者選結束時間時，不用從頭滾
-                msEnd.locatePosition(0, indexArr[0]); // 同步日期
-                msEnd.locatePosition(1, indexArr[1]); // 同步小時
-                msEnd.locatePosition(2, indexArr[2]); // 同步分鐘
-            }
-        });
-
-        // 手動觸發一次填入預設值 (讓畫面上直接顯示預設時間)
-        // 為了 UI 乾淨，我們這裡也可以選擇保持 "點擊選擇..."，看您喜好。
-        // 這裡示範：直接填入預設值
-        const defText = `${nowObj.dateVal} (${new Date().toLocaleDateString('zh-TW', {weekday:'short'})}) ${nowObj.hourVal}:${nowObj.minVal}`;
-        // 由於我們沒辦法簡單從 id 反查 dateArr 的顯示文字(value)，
-        // 為了簡單起見，這裡先用 JS 設值
-        document.getElementById('input-start').value = nowObj.fullStr;
-        document.getElementById('trigger-start').textContent = nowObj.fullStr; // 簡化顯示
-        document.getElementById('trigger-start').classList.remove('placeholder');
-
-
-        // --- 設定結束時間選擇器 ---
-        msEnd = new MobileSelect({
-            trigger: "#trigger-end",
-            title: "選擇結束時間",
-            wheels: [
-                { data: dateArr },
-                { data: hourArr },
-                { data: minArr }
-            ],
-            // 初始值也設為現在，但會被上面的 callback 覆蓋
-            initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal],
-            colWidth: [5, 2, 2],
-            callback: function(indexArr, data) {
-                const datePart = data[0].id;
-                const hourPart = data[1].id;
-                const minPart  = data[2].id;
-                const finalStr = `${datePart} ${hourPart}:${minPart}`;
-
-                document.getElementById('input-end').value = finalStr;
-                const showDiv = document.getElementById('trigger-end');
-                showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
-                showDiv.classList.remove('placeholder');
-            }
-        });
-    }
-
-    // ============================================
-    // 3. 其他邏輯
-    // ============================================
+    // 1. 初始化按鈕 (移到最前面，確保不會因為 JS 錯誤而失效)
     function initStationButtons(){
       const inBtn = document.getElementById('station-in');
       const outBtn= document.getElementById('station-out');
       const label = document.getElementById('selected-station');
       
+      if(!inBtn || !outBtn) return; // 安全檢查
+
       inBtn.addEventListener('click', ()=>{ 
         stationType='(進站)'; 
         label.textContent='目前狀態：進站'; 
@@ -425,9 +346,100 @@
       });
     }
 
+    // 2. 初始化滾輪
+    function initMobilePickers() {
+        // 如果插件沒載入成功，就不要執行，避免報錯
+        if(typeof MobileSelect === 'undefined') {
+            console.error("MobileSelect 插件載入失敗");
+            return;
+        }
+
+        const nowObj = getSnappedNow();
+
+        // --- 設定開始時間選擇器 ---
+        try {
+            msStart = new MobileSelect({
+                trigger: "#trigger-start",
+                title: "選擇開始時間",
+                wheels: [
+                    { data: dateArr }, 
+                    { data: hourArr }, 
+                    { data: minArr }
+                ],
+                initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal],
+                colWidth: [5, 2, 2],
+                triggerDisplayData: false, // ★ 關鍵修正：禁止插件自動填入醜醜的逗號文字
+                onShow: function() { },
+                callback: function(indexArr, data) {
+                    const datePart = data[0].id;
+                    const hourPart = data[1].id;
+                    const minPart  = data[2].id;
+                    const finalStr = `${datePart} ${hourPart}:${minPart}`;
+
+                    // 手動更新顯示文字 (漂亮的格式)
+                    document.getElementById('input-start').value = finalStr;
+                    const showDiv = document.getElementById('trigger-start');
+                    showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
+                    showDiv.classList.remove('placeholder');
+
+                    // ★ 連動結束時間 (安全地同步)
+                    if (msEnd) { 
+                        msEnd.locatePosition(0, indexArr[0]); 
+                        msEnd.locatePosition(1, indexArr[1]); 
+                        msEnd.locatePosition(2, indexArr[2]); 
+                    }
+                }
+            });
+
+            // 手動填入預設值的顯示文字
+            const showDivStart = document.getElementById('trigger-start');
+            // 找出對應的星期幾文字 (為了顯示一致性，這裡簡單處理)
+            // 為了避免複雜搜尋，初始顯示直接用標準格式
+            showDivStart.textContent = nowObj.fullStr; 
+            document.getElementById('input-start').value = nowObj.fullStr;
+            showDivStart.classList.remove('placeholder');
+
+        } catch (e) {
+            console.error("開始時間選單初始化失敗:", e);
+        }
+
+
+        // --- 設定結束時間選擇器 ---
+        try {
+            msEnd = new MobileSelect({
+                trigger: "#trigger-end",
+                title: "選擇結束時間",
+                wheels: [
+                    { data: dateArr },
+                    { data: hourArr },
+                    { data: minArr }
+                ],
+                initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal],
+                colWidth: [5, 2, 2],
+                triggerDisplayData: false, // ★ 禁止自動填入
+                callback: function(indexArr, data) {
+                    const datePart = data[0].id;
+                    const hourPart = data[1].id;
+                    const minPart  = data[2].id;
+                    const finalStr = `${datePart} ${hourPart}:${minPart}`;
+
+                    document.getElementById('input-end').value = finalStr;
+                    const showDiv = document.getElementById('trigger-end');
+                    showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
+                    showDiv.classList.remove('placeholder');
+                }
+            });
+        } catch (e) {
+            console.error("結束時間選單初始化失敗:", e);
+        }
+    }
+
     function initSubmit(){
-      document.getElementById('submit').addEventListener('click', ()=>{
-        const startVal = document.getElementById('input-start').value; // 拿隱藏欄位的值
+      const submitBtn = document.getElementById('submit');
+      if(!submitBtn) return;
+
+      submitBtn.addEventListener('click', ()=>{
+        const startVal = document.getElementById('input-start').value;
         const endVal   = document.getElementById('input-end').value;
         const station  = document.getElementById('station-dropdown').value;
         const errorDiv = document.getElementById('error-message');
@@ -435,7 +447,7 @@
         errorDiv.style.display = 'none';
 
         if(!station || !startVal || !endVal || !stationType){
-          errorDiv.innerText = '請完整填寫所有欄位';
+          errorDiv.innerText = '請完整填寫所有欄位 (包含交易類型)';
           errorDiv.style.display = 'block';
           return;
         }
@@ -462,11 +474,20 @@
       });
     }
 
+    // ============================================
+    // 啟動入口
+    // ============================================
     window.addEventListener('load', function(){
-      initMobilePickers();
+      // 1. 先初始化按鈕 (最重要)
       initStationButtons();
-      initSubmit();
       
+      // 2. 再初始化送出功能
+      initSubmit();
+
+      // 3. 最後初始化滾輪 (最容易出錯的部分放最後，且有 try-catch 保護)
+      initMobilePickers();
+      
+      // 4. LIFF 初始化
       liff.init({ liffId: liffID }).then(()=>{
         if(!liff.isLoggedIn() && liff.isInClient()){ }
       }).catch(err=>console.error(err));
