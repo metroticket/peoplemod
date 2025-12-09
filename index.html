@@ -348,6 +348,8 @@
 
     // 2. 初始化滾輪
     function initMobilePickers() {
+// 2. 初始化滾輪 (修正版：移除導致當機的參數)
+    function initMobilePickers() {
         // 如果插件沒載入成功，就不要執行，避免報錯
         if(typeof MobileSelect === 'undefined') {
             console.error("MobileSelect 插件載入失敗");
@@ -366,35 +368,43 @@
                     { data: hourArr }, 
                     { data: minArr }
                 ],
+                // 設定初始選中位置
                 initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal],
-                colWidth: [5, 2, 2],
-                triggerDisplayData: false, // ★ 關鍵修正：禁止插件自動填入醜醜的逗號文字
-                onShow: function() { },
+                
+                // ★★★ 移除 colWidth 和 triggerDisplayData 以修復錯誤 ★★★
+                
                 callback: function(indexArr, data) {
                     const datePart = data[0].id;
                     const hourPart = data[1].id;
                     const minPart  = data[2].id;
+                    
+                    // 組合出真正的資料格式 (2025-12-09 10:45)
                     const finalStr = `${datePart} ${hourPart}:${minPart}`;
 
-                    // 手動更新顯示文字 (漂亮的格式)
+                    // 1. 填入隱藏欄位 (給程式讀取用)
                     document.getElementById('input-start').value = finalStr;
+                    
+                    // 2. 填入顯示欄位 (給使用者看用)
+                    // MobileSelect 會自動填入文字，我們這裡再次覆蓋它，確保格式漂亮
                     const showDiv = document.getElementById('trigger-start');
                     showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
                     showDiv.classList.remove('placeholder');
 
-                    // ★ 連動結束時間 (安全地同步)
+                    // 3. 連動結束時間 (同步滾動)
                     if (msEnd) { 
-                        msEnd.locatePosition(0, indexArr[0]); 
-                        msEnd.locatePosition(1, indexArr[1]); 
-                        msEnd.locatePosition(2, indexArr[2]); 
+                        // 嘗試同步結束時間的選單位置
+                        // 使用 try-catch 避免如果結束時間還沒建立時報錯
+                        try {
+                            msEnd.locatePosition(0, indexArr[0]); 
+                            msEnd.locatePosition(1, indexArr[1]); 
+                            msEnd.locatePosition(2, indexArr[2]); 
+                        } catch(err) { console.log("同步結束時間尚未就緒"); }
                     }
                 }
             });
 
-            // 手動填入預設值的顯示文字
+            // 手動填入預設值的顯示文字 (頁面剛載入時)
             const showDivStart = document.getElementById('trigger-start');
-            // 找出對應的星期幾文字 (為了顯示一致性，這裡簡單處理)
-            // 為了避免複雜搜尋，初始顯示直接用標準格式
             showDivStart.textContent = nowObj.fullStr; 
             document.getElementById('input-start').value = nowObj.fullStr;
             showDivStart.classList.remove('placeholder');
@@ -415,8 +425,9 @@
                     { data: minArr }
                 ],
                 initValue: [nowObj.dateVal, nowObj.hourVal, nowObj.minVal],
-                colWidth: [5, 2, 2],
-                triggerDisplayData: false, // ★ 禁止自動填入
+                
+                // ★★★ 移除 colWidth 和 triggerDisplayData 以修復錯誤 ★★★
+
                 callback: function(indexArr, data) {
                     const datePart = data[0].id;
                     const hourPart = data[1].id;
@@ -424,6 +435,7 @@
                     const finalStr = `${datePart} ${hourPart}:${minPart}`;
 
                     document.getElementById('input-end').value = finalStr;
+                    
                     const showDiv = document.getElementById('trigger-end');
                     showDiv.textContent = `${data[0].value} ${hourPart}:${minPart}`;
                     showDiv.classList.remove('placeholder');
@@ -432,6 +444,7 @@
         } catch (e) {
             console.error("結束時間選單初始化失敗:", e);
         }
+    }
     }
 
     function initSubmit(){
@@ -495,3 +508,4 @@
   </script>
 </body>
 </html>
+
