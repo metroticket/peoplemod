@@ -145,7 +145,7 @@
       <button type="button" class="btn-toggle" id="btn-mode-flow" data-mode="人流查詢">人流查詢</button>
     </div>
 
-    <label>選擇車站 (可複選)</label>
+    <label id="station-label">選擇車站 (可複選)</label>
     <div id="station-trigger" class="fake-input placeholder">請點擊選擇車站...</div>
     <input type="hidden" id="station-value">
 
@@ -162,7 +162,7 @@
   <div id="station-modal">
     <div class="modal-content">
         <div class="modal-header">
-            <span>請選擇車站</span>
+            <span id="modal-title">請選擇車站</span>
             <button class="btn-select-all" id="btn-toggle-all">全選</button>
         </div>
         <div class="modal-body" id="station-list-container"></div>
@@ -194,10 +194,11 @@
     let endPicker = null;
     let currentMode = '總運量查詢'; 
 
-    // 功能切換邏輯 (移除了對 submit 按鈕文字的變更)
+    // 功能切換邏輯
     function initModeToggle() {
         const btnVolume = document.getElementById('btn-mode-volume');
         const btnFlow = document.getElementById('btn-mode-flow');
+        const stationLabel = document.getElementById('station-label');
 
         function switchMode(mode) {
             currentMode = mode;
@@ -205,9 +206,25 @@
             if (mode === '總運量查詢') {
                 btnVolume.classList.add('active');
                 btnFlow.classList.remove('active');
+                stationLabel.textContent = '選擇車站 (可複選)';
             } else {
                 btnFlow.classList.add('active');
                 btnVolume.classList.remove('active');
+                stationLabel.textContent = '選擇車站 (單選)';
+                
+                // ★ 如果切換到人流查詢時發現選了多個車站，自動裁切保留第一個 ★
+                const hiddenInput = document.getElementById('station-value');
+                if (hiddenInput.value && hiddenInput.value.includes(',')) {
+                    const firstId = hiddenInput.value.split(',')[0];
+                    hiddenInput.value = firstId;
+                    
+                    // 同步更新畫面的中文字
+                    const targetStation = stationData.find(st => st.id === firstId);
+                    const trigger = document.getElementById('station-trigger');
+                    if (targetStation) {
+                        trigger.textContent = targetStation.name;
+                    }
+                }
             }
         }
 
@@ -215,7 +232,7 @@
         btnFlow.addEventListener('click', () => switchMode('人流查詢'));
     }
 
-    // 車站複選邏輯
+    // 車站選擇彈窗邏輯
     function initStationPicker() {
         const modal = document.getElementById('station-modal');
         const container = document.getElementById('station-list-container');
@@ -224,17 +241,35 @@
         const btnCancel = document.getElementById('btn-close-modal');
         const btnConfirm = document.getElementById('btn-confirm-modal');
         const btnToggleAll = document.getElementById('btn-toggle-all');
+        const modalTitle = document.getElementById('modal-title');
 
         stationData.forEach(st => {
             const btn = document.createElement('div');
             btn.className = 'station-option';
             btn.textContent = st.name;
             btn.dataset.id = st.id;
-            btn.addEventListener('click', () => { btn.classList.toggle('selected'); });
+            
+            // 點擊車站選項事件
+            btn.addEventListener('click', () => { 
+                if (currentMode === '人流查詢') {
+                    // ★ 人流查詢（單選模式）：點擊時先清除其他人的選取狀態 ★
+                    const alreadySelected = btn.classList.contains('selected');
+                    container.querySelectorAll('.station-option').forEach(opt => opt.classList.remove('selected'));
+                    if (!alreadySelected) {
+                        btn.classList.add('selected');
+                    }
+                } else {
+                    // 總運量查詢（複選模式）：自由切換
+                    btn.classList.toggle('selected'); 
+                }
+            });
             container.appendChild(btn);
         });
 
+        // 全選按鈕點擊事件
         btnToggleAll.addEventListener('click', () => {
+            if (currentMode === '人流查詢') return; // 單選模式下不作用
+            
             const options = container.querySelectorAll('.station-option');
             const allSelected = container.querySelectorAll('.station-option.selected').length === options.length;
 
@@ -247,10 +282,21 @@
             }
         });
 
+        // 打開彈窗
         trigger.addEventListener('click', () => {
             const currentIds = hiddenInput.value ? hiddenInput.value.split(',') : [];
             const options = container.querySelectorAll('.station-option');
             
+            // 依據當前模式動態調整彈窗標題與全選按鈕顯示狀態
+            if (currentMode === '人流查詢') {
+                modalTitle.textContent = '請選擇車站 (單選)';
+                btnToggleAll.style.display = 'none'; // 隱藏全選
+            } else {
+                modalTitle.textContent = '請選擇車站 (可複選)';
+                btnToggleAll.style.display = 'block'; // 顯示全選
+            }
+
+            // 恢復上次選擇狀態
             options.forEach(opt => {
                 if(currentIds.includes(opt.dataset.id)) opt.classList.add('selected');
                 else opt.classList.remove('selected');
@@ -264,6 +310,7 @@
 
         btnCancel.addEventListener('click', () => { modal.classList.remove('open'); });
 
+        // 按下確認
         btnConfirm.addEventListener('click', () => {
             const selectedOptions = container.querySelectorAll('.station-option.selected');
             const ids = [];
@@ -346,8 +393,6 @@
         }
 
         const formattedStations = stationVal.replace(/,/g, '、');
-        
-        // 仍會依據 currentMode 的狀態送出對應的功能名稱
         const message = `功能：${currentMode}\n車站: ${formattedStations}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
         
         if (liff.isInClient()) {
