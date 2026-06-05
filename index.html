@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>運量查詢系統</title>
+  <title>運量與人流查詢系統</title>
   
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   
@@ -23,6 +23,21 @@
     }
     h1 { font-size: 20px; text-align: center; margin-bottom: 25px; color: #333; font-weight: bold; }
     label { display: block; margin-bottom: 8px; font-size: 15px; color: #555; font-weight: bold; }
+
+    /* 功能選擇按鈕組樣式 */
+    .function-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    .btn-toggle {
+      flex: 1; padding: 12px; background: #fff; color: #333; 
+      border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-weight: bold; 
+      cursor: pointer; text-align: center; transition: all 0.2s;
+    }
+    .btn-toggle.active {
+      background: #333; color: #fff; border-color: #333;
+    }
 
     /* 輸入框樣式 */
     input[type="text"], .fake-input { 
@@ -93,14 +108,12 @@
         display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
     
-    /* 調整 Header 支援全選按鈕 */
     .modal-header { 
         padding: 15px; border-bottom: 1px solid #ccc; 
         font-weight: bold; font-size: 18px; color: #333;
-        display: flex; justify-content: space-between; align-items: center; /* 使用 Flexbox 排版 */
+        display: flex; justify-content: space-between; align-items: center;
     }
     
-    /* 全選按鈕樣式 */
     .btn-select-all {
         font-size: 14px; padding: 5px 12px; background: transparent; 
         border: 1px solid #333; border-radius: 6px; color: #333; cursor: pointer;
@@ -124,7 +137,13 @@
 <body>
 
   <div class="form-group">
-    <h1>總運量查詢系統</h1>
+    <label>選擇查詢功能</label>
+    <div class="function-toggle">
+      <button type="button" class="btn-toggle active" id="btn-mode-volume" data-mode="總運量查詢">總運量查詢</button>
+      <button type="button" class="btn-toggle" id="btn-mode-flow" data-mode="人流查詢">人流查詢</button>
+    </div>
+
+    <h1 id="system-title">總運量查詢系統</h1>
 
     <label>選擇車站 (可複選)</label>
     <div id="station-trigger" class="fake-input placeholder">請點擊選擇車站...</div>
@@ -173,6 +192,32 @@
 
     let startPicker = null;
     let endPicker = null;
+    let currentMode = '總運量查詢'; // 預設功能狀態
+
+    // 功能切換邏輯
+    function initModeToggle() {
+        const btnVolume = document.getElementById('btn-mode-volume');
+        const btnFlow = document.getElementById('btn-mode-flow');
+        const systemTitle = document.getElementById('system-title');
+        const btnSubmit = document.getElementById('submit');
+
+        function switchMode(mode) {
+            currentMode = mode;
+            systemTitle.textContent = `${mode}系統`;
+            btnSubmit.textContent = `查詢${mode.replace('查詢', '')}`; // 自動變更按鈕文字為 "查詢運量" 或 "查詢人流"
+
+            if (mode === '總運量查詢') {
+                btnVolume.classList.add('active');
+                btnFlow.classList.remove('active');
+            } else {
+                btnFlow.classList.add('active');
+                btnVolume.classList.remove('active');
+            }
+        }
+
+        btnVolume.addEventListener('click', () => switchMode('總運量查詢'));
+        btnFlow.addEventListener('click', () => switchMode('人流查詢'));
+    }
 
     // 車站複選邏輯
     function initStationPicker() {
@@ -182,9 +227,8 @@
         const hiddenInput = document.getElementById('station-value');
         const btnCancel = document.getElementById('btn-close-modal');
         const btnConfirm = document.getElementById('btn-confirm-modal');
-        const btnToggleAll = document.getElementById('btn-toggle-all'); // 全選按鈕
+        const btnToggleAll = document.getElementById('btn-toggle-all');
 
-        // 產生車站選項
         stationData.forEach(st => {
             const btn = document.createElement('div');
             btn.className = 'station-option';
@@ -194,18 +238,14 @@
             container.appendChild(btn);
         });
 
-        // ★ 全選/取消全選 邏輯 ★
         btnToggleAll.addEventListener('click', () => {
             const options = container.querySelectorAll('.station-option');
-            // 檢查是否已經「全部選中」
             const allSelected = container.querySelectorAll('.station-option.selected').length === options.length;
 
             if (allSelected) {
-                // 如果已經全選，則「全部取消」
                 options.forEach(opt => opt.classList.remove('selected'));
                 btnToggleAll.textContent = "全選";
             } else {
-                // 否則「全部選取」
                 options.forEach(opt => opt.classList.add('selected'));
                 btnToggleAll.textContent = "取消全選";
             }
@@ -215,13 +255,11 @@
             const currentIds = hiddenInput.value ? hiddenInput.value.split(',') : [];
             const options = container.querySelectorAll('.station-option');
             
-            // 恢復上次選擇狀態
             options.forEach(opt => {
                 if(currentIds.includes(opt.dataset.id)) opt.classList.add('selected');
                 else opt.classList.remove('selected');
             });
             
-            // 重置全選按鈕文字
             const allSelected = container.querySelectorAll('.station-option.selected').length === options.length;
             btnToggleAll.textContent = allSelected ? "取消全選" : "全選";
 
@@ -239,10 +277,8 @@
                 names.push(opt.textContent);
             });
 
-            // 隱藏欄位存 IDs: "A1,A3"
             hiddenInput.value = ids.join(',');
 
-            // 畫面上顯示中文名稱
             if(ids.length > 0) {
                 trigger.textContent = names.join('、');
                 trigger.classList.remove('placeholder');
@@ -271,7 +307,7 @@
         return `${Y}-${M}-${D} ${h}:${m}`;
     }
     function initFlatpickr() {
-        const minDate = "2025-01-01"; 
+        const minDate = "2025-01-01"; 
         const snappedDate = getSnappedDate();
         const initialTimeStr = formatDateToString(snappedDate);
         document.getElementById('picker-start').value = initialTimeStr;
@@ -313,15 +349,16 @@
             return;
         }
 
-        // 轉換逗號為頓號 (IDs)
         const formattedStations = stationVal.replace(/,/g, '、');
-        const message = `功能：運量查詢\n車站: ${formattedStations}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
+        
+        // ★ 根據當前選擇的功能動態調整回傳的訊息文字 ★
+        const message = `功能：${currentMode}\n車站: ${formattedStations}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
         
         if (liff.isInClient()) {
             liff.sendMessages([{ type:'text', text: message }])
               .then(()=>{ liff.closeWindow(); })
-              .catch(err=>{ 
-                  console.error(err); 
+              .catch(err=>{ 
+                  console.error(err); 
                   errorDiv.innerText = '發送失敗，請稍後再試';
                   errorDiv.style.display = 'block';
               });
@@ -332,6 +369,7 @@
     }
 
     window.addEventListener('load', function(){
+      initModeToggle(); // 初始化功能切換
       initStationPicker();
       initFlatpickr();
       initSubmit();
