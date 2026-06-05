@@ -155,7 +155,7 @@
     <label>結束時間</label>
     <input type="text" id="picker-end" placeholder="請先選擇開始時間" readonly>
 
-    <button id="submit">查詢總運量</button>
+    <button id="submit">查詢</button>
     <div id="error-message" class="error-message"></div>
   </div>
 
@@ -192,17 +192,15 @@
 
     let startPicker = null;
     let endPicker = null;
-    let currentMode = '總運量查詢'; // 預設功能狀態
+    let currentMode = '總運量查詢'; 
 
-    // 功能切換邏輯
+    // 功能切換邏輯 (移除了對 submit 按鈕文字的變更)
     function initModeToggle() {
         const btnVolume = document.getElementById('btn-mode-volume');
         const btnFlow = document.getElementById('btn-mode-flow');
-        const btnSubmit = document.getElementById('submit');
 
         function switchMode(mode) {
             currentMode = mode;
-            btnSubmit.textContent = `查詢${mode.replace('查詢', '')}`; // 底下按鈕會切換為 "查詢總運量" 或 "查詢人流"
 
             if (mode === '總運量查詢') {
                 btnVolume.classList.add('active');
@@ -349,7 +347,7 @@
 
         const formattedStations = stationVal.replace(/,/g, '、');
         
-        // 根據選擇功能回傳字串
+        // 仍會依據 currentMode 的狀態送出對應的功能名稱
         const message = `功能：${currentMode}\n車站: ${formattedStations}\n開始時間: ${startVal}\n結束時間: ${endVal}`;
         
         if (liff.isInClient()) {
